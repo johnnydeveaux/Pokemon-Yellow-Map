@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Yellow Tracker">
+<meta name="theme-color" content="#F2C230">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADqUlEQVR4nO3cMW7UUBSG0RfEFtgFQtRDPT3S1KyADgRiCQgEHSugRqKioUOCBSB2kS4roIgYAsofmPg+25N3zgLskf3l+sXj8cnZl/sNLnNr6Q/AeomDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIH0e3Z9nT38els+7rxfry7M8NeTnr/NEETXXWtpGMcsphHvz56xaGMmfVIpMuCVBnz63HM6+NQxlLKj3xxHMpYVu3xr4xDGWtQeBbK4lDGelSdC3dIiWriMDbWpuSMzHH7/NvnDzPsZTSb7a73LlxWiAricE1Zp+nnxeQgEgeROIjEQSQOInEQiYNIHETiIBLHH2b4wuKIiOO38zL0sTffj5pW7mITm+2u8JvkJy+fT9/I2xevpm/kUCZHa5dNC/OjiaPlDvQxehxXFzB4H+PGsdnu/ufcj9zHoAvSg075Zrt7/eZRvw+zWiNOjmsMg2dP3/f4JCs3XBzXvkwM2MdYcUxcQIzWx0BxlCwth+pjoDhKbnoOtTIdKI42uY+hymijxdEm9DFaGW3AONq1+hiwjDZmHO3APsYsow17h7T96uOf/8JMX8Z++PRt4haWMujk2Lt6Kgz+foDR42i5j2GvJnviaO2yDpTRRl5z/OX1m0f7u5+1ZSzyhF8Jk+O38ybMjD1x/EEZF4mDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgfRQF/ZX+MNO5c+4Xe8X8EfyuQgEgeROIjEQbTSBenX7x+X/giYHGTiIBIH0VrWHBYZK2RyEImDSBxE4iASB9Fa/lu52oN7D6dv5HjfsLMUk4NIHETiIDqONUeJcR7vq2JyEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETLPEN66FsfB3/l41JMDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQLfOYoCf8joLJQSQOInEQiYNIHETiICqI48e7O9M3Qrnp52WO+xyb7W6GvVDOZeVmKhnnNXG4stxIZZNDH+tRdS5cVogq4zA81qDwLBRPDn0sq/b4119W9LGU8iPfZc2hj/n1OOYnZ1/ul2/03N3Hp522zEX9/hQ7xnFOIv30ntDd49hTSaF5LtzzxcHRcROMSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIH0U+JQbLpWakR5gAAAABJRU5ErkJggg==">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADqUlEQVR4nO3cMW7UUBSG0RfEFtgFQtRDPT3S1KyADgRiCQgEHSugRqKioUOCBSB2kS4roIgYAsofmPg+25N3zgLskf3l+sXj8cnZl/sNLnNr6Q/AeomDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIH0e3Z9nT38els+7rxfry7M8NeTnr/NEETXXWtpGMcsphHvz56xaGMmfVIpMuCVBnz63HM6+NQxlLKj3xxHMpYVu3xr4xDGWtQeBbK4lDGelSdC3dIiWriMDbWpuSMzHH7/NvnDzPsZTSb7a73LlxWiAricE1Zp+nnxeQgEgeROIjEQSQOInEQiYNIHETiIBLHH2b4wuKIiOO38zL0sTffj5pW7mITm+2u8JvkJy+fT9/I2xevpm/kUCZHa5dNC/OjiaPlDvQxehxXFzB4H+PGsdnu/ufcj9zHoAvSg075Zrt7/eZRvw+zWiNOjmsMg2dP3/f4JCs3XBzXvkwM2MdYcUxcQIzWx0BxlCwth+pjoDhKbnoOtTIdKI42uY+hymijxdEm9DFaGW3AONq1+hiwjDZmHO3APsYsow17h7T96uOf/8JMX8Z++PRt4haWMujk2Lt6Kgz+foDR42i5j2GvJnviaO2yDpTRRl5z/OX1m0f7u5+1ZSzyhF8Jk+O38ybMjD1x/EEZF4mDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgfRQF/ZX+MNO5c+4Xe8X8EfyuQgEgeROIjEQbTSBenX7x+X/giYHGTiIBIH0VrWHBYZK2RyEImDSBxE4iASB9Fa/lu52oN7D6dv5HjfsLMUk4NIHETiIDqONUeJcR7vq2JyEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETLPEN66FsfB3/l41JMDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQLfOYoCf8joLJQSQOInEQiYNIHETiICqI48e7O9M3Qrnp52WO+xyb7W6GvVDOZeVmKhnnNXG4stxIZZNDH+tRdS5cVogq4zA81qDwLBRPDn0sq/b4119W9LGU8iPfZc2hj/n1OOYnZ1/ul2/03N3Hp522zEX9/hQ7xnFOIv30ntDd49hTSaF5LtzzxcHRcROMSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIH0U+JQbLpWakR5gAAAABJRU5ErkJggg==">
+<title>Pokémon Yellow Tracker</title>
+<style>
+:root{
+  --cart:#F2C230;      /* cartridge yellow */
+  --cart-dk:#C99A12;
+  --scr0:#E4E8C8;      /* 4-tone screen */
+  --scr1:#A9BA78;
+  --scr2:#56703E;
+  --scr3:#1E2D1B;
+  --ink:#2A2418;
+  --paper:#FFFBEA;
+  --done:#56703E;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+  font-family:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--cart);color:var(--ink);overscroll-behavior:none}
+body{display:flex;flex-direction:column;padding-top:var(--safe-t)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--scr3);outline-offset:2px}
+
+header{display:flex;align-items:center;gap:10px;padding:10px 14px 8px}
+header h1{font-size:1.25rem;font-weight:800;letter-spacing:-.01em;margin:0;flex:1;line-height:1.1}
+header h1 small{display:block;font-size:.72rem;font-weight:600;opacity:.7;letter-spacing:0}
+.meter{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.05rem;background:var(--scr3);color:var(--scr0);padding:6px 10px;border-radius:10px}
+
+.search{margin:0 14px 8px;position:relative}
+.search input{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--ink);border-radius:12px;background:var(--paper)}
+.results{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--paper);border:2px solid var(--ink);border-radius:12px;max-height:50vh;overflow:auto;z-index:30;display:none}
+.results.on{display:block}
+.results button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;background:none;border-bottom:1px solid #0001}
+.results button span{opacity:.6;font-size:.85em}
+
+main{flex:1;position:relative;min-height:0}
+.view{position:absolute;inset:0;display:none}
+.view.on{display:block}
+
+/* Map screen: the one bold element */
+#mapWrap{position:absolute;inset:0 10px 10px;background:var(--scr3);border-radius:14px 14px 40px 14px;padding:10px}
+#map{width:100%;height:100%;background:var(--scr0);border-radius:6px;touch-action:none;display:block}
+.edge{stroke:var(--scr1);stroke-width:1.6;stroke-linecap:round}
+.node{cursor:pointer}
+.node .shape{fill:var(--scr0);stroke:var(--scr3);stroke-width:.7}
+.node.town .shape{fill:var(--scr2)}
+.node.dungeon .shape{fill:var(--scr1)}
+.node.complete .shape{fill:var(--scr3)}
+.node.dim{opacity:.25}
+.node.sel .shape{stroke-width:1.6}
+/* Map icons */
+.ic *{stroke:var(--scr3);stroke-width:.45;stroke-linejoin:round}
+.ic .nos{stroke:none}
+.node .hit{fill:transparent;stroke:none}
+.node .ring{fill:none;stroke:var(--scr3);stroke-width:.8;stroke-dasharray:1.4 1;display:none}
+.node.sel .ring{display:block}
+.node .done{fill:var(--scr3);stroke:var(--scr0);stroke-width:.4}
+.node .done+path{fill:none;stroke:var(--scr0);stroke-width:.55;stroke-linecap:round;stroke-linejoin:round}
+.node.complete .ic{filter:saturate(.55)}
+.star{fill:#F2C230;stroke:var(--scr3);stroke-width:.35}
+.pin .body{fill:#D8392B;stroke:var(--scr3);stroke-width:.5}
+.pin .dot{fill:#fff}
+.pin .pulse{fill:none;stroke:#D8392B;stroke-width:.7;animation:pulse 1.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{from{opacity:.9;transform:scale(.4)}to{opacity:0;transform:scale(1.6)}}
+@media (prefers-reduced-motion:reduce){.pin .pulse{animation:none;opacity:.5}}
+.here{position:absolute;left:20px;top:20px;right:70px;display:flex;pointer-events:none}
+.here button{pointer-events:auto;border:2px solid var(--scr3);background:var(--scr0);color:var(--scr3);border-radius:12px;padding:6px 10px;font-size:.78rem;font-weight:700;text-align:left;max-width:100%;line-height:1.25}
+.here button b{color:#B42A1E}
+.node text{font-size:3.2px;font-weight:700;fill:var(--scr3);pointer-events:none}
+.node.route text{font-size:2.6px}
+.chips{position:absolute;left:18px;right:18px;bottom:18px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+.chip{pointer-events:auto;border:2px solid var(--scr3);background:var(--scr0);color:var(--scr3);border-radius:999px;padding:5px 10px;font-size:.8rem;font-weight:700}
+.chip[aria-pressed=true]{background:var(--scr3);color:var(--scr0)}
+.zoom{position:absolute;right:20px;top:20px;display:flex;flex-direction:column;gap:6px}
+.zoom button{width:38px;height:38px;border-radius:10px;border:2px solid var(--scr3);background:var(--scr0);font-weight:800;font-size:1.1rem}
+
+/* Lists */
+.scroll{position:absolute;inset:0;overflow:auto;padding:0 14px 20px;-webkit-overflow-scrolling:touch}
+.dexbar{display:flex;gap:6px;position:sticky;top:0;background:var(--cart);padding:4px 0 8px;z-index:2}
+.row{display:flex;align-items:center;gap:10px;background:var(--paper);border-radius:10px;padding:9px 11px;margin-bottom:6px;border:2px solid transparent}
+.row .num{font-variant-numeric:tabular-nums;opacity:.55;width:2.4em;font-size:.85rem}
+.row .name{flex:1;font-weight:700}
+.row .where{display:block;font-weight:500;font-size:.78rem;opacity:.7}
+.row.got{background:var(--scr1)}
+.tick{width:30px;height:30px;border-radius:8px;border:2px solid var(--ink);background:var(--paper);flex:none;display:grid;place-items:center;font-weight:900}
+.got .tick,.tick[aria-checked=true]{background:var(--scr3);color:var(--scr0);border-color:var(--scr3)}
+.link{background:none;border:0;padding:0;text-decoration:underline;font-size:.78rem;opacity:.8;margin-right:8px}
+
+/* Sheet */
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:78vh;background:var(--paper);border-radius:20px 20px 0 0;border-top:3px solid var(--ink);transform:translateY(105%);transition:transform .25s ease;z-index:40;display:flex;flex-direction:column;padding-bottom:var(--safe-b)}
+.sheet.on{transform:none}
+.sheet header{padding:14px 16px 6px}
+.sheet h2{margin:0;font-size:1.3rem;flex:1}
+.sheet .close{border:2px solid var(--ink);background:none;border-radius:10px;padding:6px 12px;font-weight:700}
+.sheet .body{overflow:auto;padding:0 16px 16px}
+.sheet h3{font-size:.95rem;margin:14px 0 6px}
+.sheet .row{background:#F3EDCF}
+.sheet .row.got{background:var(--scr1)}
+.empty{opacity:.6;font-size:.9rem}
+
+/* Progress */
+.stat{background:var(--paper);border-radius:12px;padding:14px;margin-bottom:10px}
+.stat h3{margin:0 0 6px;font-size:1rem;display:flex;justify-content:space-between}
+button.stat{display:block;width:100%;text-align:left;border:0;font:inherit;color:inherit;cursor:pointer}
+button.stat:active{filter:brightness(.95)}
+button.stat h3 span:last-child::after{content:' ›';opacity:.45}
+.row .loc{font-size:.78rem;opacity:.7;font-weight:500}
+.bar{height:12px;background:var(--scr0);border:2px solid var(--scr3);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--scr2)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btns button{border:2px solid var(--ink);background:var(--paper);border-radius:10px;padding:9px 12px;font-weight:700}
+.note{font-size:.85rem;line-height:1.5;max-width:65ch}
+
+nav{display:flex;background:var(--ink);padding:6px 6px calc(6px + var(--safe-b))}
+nav button{flex:1;border:0;background:none;color:var(--cart);padding:10px 2px;font-weight:800;font-size:.8rem;border-radius:10px;min-width:0}
+nav button[aria-selected=true]{background:var(--cart);color:var(--ink)}
+
+/* Sprites + detailed dex */
+.spr{width:40px;height:40px;image-rendering:pixelated;image-rendering:crisp-edges;object-fit:contain;flex:none}
+.spr.sm{width:32px;height:32px}
+.card .spr{width:56px;height:56px}
+.spr.big{width:112px;height:112px}
+.spr.miss{visibility:hidden}
+.nm{background:none;border:0;padding:0;font:inherit;font-weight:700;text-align:left}
+.own{font-size:.72rem;font-weight:800;background:var(--scr3);color:var(--scr0);border-radius:999px;padding:2px 7px;flex:none}
+.dexhead{display:flex;gap:14px;align-items:center;margin-top:4px}
+.screen{background:var(--scr0);border:3px solid var(--scr3);border-radius:10px;padding:4px;flex:none;line-height:0}
+.dexhead .meta{flex:1;font-size:.88rem;line-height:1.5}
+.dexhead .meta b{font-size:1rem}
+.type{display:inline-block;color:#fff;font-weight:800;font-size:.72rem;padding:2px 8px;border-radius:999px;text-shadow:0 1px 0 #0004;margin:0 4px 2px 0;vertical-align:middle}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:.88rem}
+.kv dt{opacity:.65}.kv dd{margin:0;font-weight:700}
+.sb{display:grid;grid-template-columns:3.2em 2.4em 1fr;align-items:center;gap:6px;font-size:.85rem;margin:3px 0}
+.sb span:nth-child(2){font-variant-numeric:tabular-nums;font-weight:800;text-align:right}
+.sb .bar{height:9px}
+table.mv{width:100%;border-collapse:collapse;font-size:.84rem}
+table.mv th{text-align:left;font-size:.72rem;opacity:.6;font-weight:700;padding:2px 4px}
+table.mv td{padding:5px 4px;border-top:1px solid #0001;font-variant-numeric:tabular-nums}
+table.mv td:nth-child(2){font-weight:700}
+.tms{display:flex;flex-wrap:wrap;gap:4px}
+.tms span{background:#F3EDCF;border-radius:6px;padding:3px 6px;font-size:.76rem}
+.tms b{opacity:.55;font-weight:700;margin-right:3px}
+.evo{display:flex;align-items:center;gap:4px;overflow-x:auto;padding-bottom:4px}
+.evo .stage{display:flex;flex-direction:column;gap:4px}
+.evo .arrow{font-weight:900;opacity:.5}
+.evo button{display:flex;flex-direction:column;align-items:center;background:#F3EDCF;border:2px solid transparent;border-radius:10px;padding:4px 8px;font-size:.78rem;font-weight:700;min-width:72px}
+.evo button.cur{border-color:var(--ink)}
+.evo button small{font-weight:600;opacity:.65;font-size:.7rem}
+.hint{font-size:.8rem;opacity:.75;margin:4px 0 0}
+.bigbtn{border:2px solid var(--ink);background:var(--cart);border-radius:10px;padding:10px 14px;font-weight:800}
+
+/* Team / caught log */
+.card{display:flex;gap:10px;background:var(--paper);border-radius:12px;padding:10px;margin-bottom:8px;align-items:flex-start;border:2px solid transparent;width:100%;text-align:left}
+.card .info{flex:1;min-width:0}
+.card .top{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.card .top b{font-size:1rem}
+.card .lv{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;background:var(--scr3);color:var(--scr0);border-radius:8px;padding:1px 7px;font-size:.85rem}
+.moves{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px}
+.moves span{font-size:.78rem;font-weight:700;background:#F3EDCF;border-radius:6px;padding:4px 6px;border-left:5px solid #999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.moves span.none{opacity:.4;font-weight:500}
+.card .acts{display:flex;flex-direction:column;gap:6px}
+.card .acts button{border:2px solid var(--ink);background:var(--paper);border-radius:8px;padding:5px 8px;font-weight:800;font-size:.8rem}
+h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:center}
+.form label{display:block;font-size:.8rem;font-weight:700;margin:12px 0 4px}
+.form input,.form select{width:100%;font:inherit;font-size:16px;padding:9px 10px;border:2px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink)}
+.form .lvl{display:flex;gap:6px}
+.form .lvl button{width:46px;border:2px solid var(--ink);border-radius:10px;background:var(--paper);font-weight:900;font-size:1.1rem}
+.form .lvl input{text-align:center;font-weight:800}
+.form .mvslots{display:grid;gap:6px}
+.form .chk{display:flex;align-items:center;gap:10px;font-size:.95rem;font-weight:700;margin-top:14px}
+.form .chk input{width:24px;height:24px}
+.toast{position:fixed;left:14px;right:14px;bottom:calc(70px + var(--safe-b));background:var(--ink);color:var(--cart);padding:12px 14px;border-radius:12px;font-weight:700;z-index:60;opacity:0;transform:translateY(10px);transition:.2s;pointer-events:none}
+.toast.on{opacity:1;transform:none}
+
+/* Versus */
+.vs-pick{display:flex;gap:8px;align-items:center}
+.vs-pick select{flex:1;min-width:0;font:inherit;font-size:16px;padding:9px 10px;border:2px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink)}
+.vs-team{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px}
+.vs-team button{flex:none;display:flex;flex-direction:column;align-items:center;background:var(--paper);border:2px solid transparent;border-radius:10px;padding:2px 6px;font-size:.7rem;font-weight:700;max-width:76px}
+.vs-team button[aria-pressed=true]{border-color:var(--ink)}
+.vs-team button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64px}
+.vs-hero{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--paper);border-radius:14px;padding:12px;margin:8px 0 10px}
+.vs-hero b{font-size:1.2rem;margin-top:6px}
+.vs-hero .sub{font-size:.8rem;opacity:.7;margin-bottom:4px}
+.vs-hero .link{margin-top:6px}
+.tline{display:flex;flex-wrap:wrap;align-items:center;gap:2px 0;margin:4px 0;font-size:.82rem}
+.tline>span:first-child{font-weight:800;min-width:7.6em}
+.mult{font-weight:800;font-size:.7rem;margin-right:6px;opacity:.75}
+.vs-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+.vs-col{background:var(--paper);border-radius:12px;padding:8px;min-width:0}
+.vs-col>h3{margin:0 0 6px;font-size:.9rem;text-align:center;border-radius:8px;padding:6px 4px}
+.vs-col.weak>h3{background:#E9B7A9}
+.vs-col.strong>h3{background:#BCD3A2}
+.vs-col h4{margin:10px 0 4px;font-size:.75rem;display:flex;align-items:center;gap:4px}
+.vs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.vs-grid button{position:relative;display:flex;flex-direction:column;align-items:center;background:#F3EDCF;border:0;border-radius:8px;padding:2px 1px 3px;font-size:.62rem;font-weight:700;min-width:0}
+.vs-grid button span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vs-grid button.got{background:#DCE6C4}
+.vs-grid .x4{position:absolute;top:1px;right:2px;font-size:.58rem;font-weight:900;background:var(--ink);color:var(--cart);border-radius:4px;padding:0 3px}
+.bm{display:grid;grid-template-columns:1fr auto auto;gap:4px 8px;align-items:center;font-size:.84rem}
+.bm b{font-weight:800}
+.bm small{opacity:.7}
+@media (prefers-reduced-motion:reduce){.sheet{transition:none}}
+</style>
+</head>
+<body>
+<noscript><div style="padding:24px;font:17px/1.5 system-ui;background:#FFFBEA">
+<b>This preview can't run the app.</b><br>The Files preview shows pages without running them. Open this file from its web address in Safari instead.</div></noscript>
+<header>
+  <h1>Pokémon Yellow Tracker<small>Map and 100% checklist</small></h1>
+  <div class="meter" id="meter" aria-label="Overall completion">0%</div>
+</header>
+<div class="search">
+  <input id="q" type="search" placeholder="Search a place, Pokémon, item, TM or nickname" autocomplete="off">
+  <div class="results" id="results"></div>
+</div>
+
+<main>
+  <section class="view on" id="v-map">
+    <div id="mapWrap">
+      <svg id="map" viewBox="-10 4 140 136" aria-label="Kanto map"></svg>
+      <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset view">⤢</button></div>
+      <div class="here" id="here"></div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+  <section class="view" id="v-dex"><div class="scroll" id="dexList"></div></section>
+  <section class="view" id="v-team"><div class="scroll" id="teamList"></div></section>
+  <section class="view" id="v-vs"><div class="scroll" id="vsBody"></div></section>
+  <section class="view" id="v-prog"><div class="scroll" id="prog"></div></section>
+</main>
+
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-v="map">Map</button>
+  <button role="tab" aria-selected="false" data-v="dex">Pokédex</button>
+  <button role="tab" aria-selected="false" data-v="team">Team</button>
+  <button role="tab" aria-selected="false" data-v="vs">Versus</button>
+  <button role="tab" aria-selected="false" data-v="prog">Progress</button>
+</nav>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <header><button class="close" id="sheetBack" hidden>‹ Back</button><h2 id="sheetTitle"></h2><button class="close" id="sheetClose">Close</button></header>
+  <div class="body" id="sheetBody"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="dex-data.js"></script>
+<script>
+/* ============================================================
+   DATA — edit freely. Encounter tables are best-effort; verify
+   against a guide and correct anything that's off.
+   w = wild Pokémon, s = special (gift / static / prize / fossil)
+   i = items, TMs, HMs, key items   b = badge / battles
+   ============================================================ */
+const DEX = `Bulbasaur Ivysaur Venusaur Charmander Charmeleon Charizard Squirtle Wartortle Blastoise Caterpie Metapod Butterfree Weedle Kakuna Beedrill Pidgey Pidgeotto Pidgeot Rattata Raticate Spearow Fearow Ekans Arbok Pikachu Raichu Sandshrew Sandslash Nidoran♀ Nidorina Nidoqueen Nidoran♂ Nidorino Nidoking Clefairy Clefable Vulpix Ninetales Jigglypuff Wigglytuff Zubat Golbat Oddish Gloom Vileplume Paras Parasect Venonat Venomoth Diglett Dugtrio Meowth Persian Psyduck Golduck Mankey Primeape Growlithe Arcanine Poliwag Poliwhirl Poliwrath Abra Kadabra Alakazam Machop Machoke Machamp Bellsprout Weepinbell Victreebel Tentacool Tentacruel Geodude Graveler Golem Ponyta Rapidash Slowpoke Slowbro Magnemite Magneton Farfetch'd Doduo Dodrio Seel Dewgong Grimer Muk Shellder Cloyster Gastly Haunter Gengar Onix Drowzee Hypno Krabby Kingler Voltorb Electrode Exeggcute Exeggutor Cubone Marowak Hitmonlee Hitmonchan Lickitung Koffing Weezing Rhyhorn Rhydon Chansey Tangela Kangaskhan Horsea Seadra Goldeen Seaking Staryu Starmie Mr.Mime Scyther Jynx Electabuzz Magmar Pinsir Tauros Magikarp Gyarados Lapras Ditto Eevee Vaporeon Jolteon Flareon Porygon Omanyte Omastar Kabuto Kabutops Aerodactyl Snorlax Articuno Zapdos Moltres Dratini Dragonair Dragonite Mewtwo Mew`.split(' ').map(n=>n==='Mr.Mime'?'Mr. Mime':n);
+
+const L = (id,name,t,x,y,d={}) => ({id,name,t,x,y,w:d.w||[],s:d.s||[],i:d.i||[],b:d.b||[]});
+const LOCS = [
+ L('pallet','Pallet Town','town',25,106,{s:['Pikachu'],i:['Pokédex','Town Map']}),
+ L('r1','Route 1','route',25,90,{w:['Pidgey','Rattata'],i:['Potion (clerk)']}),
+ L('viridian','Viridian City','town',25,74,{i:["Oak's Parcel",'TM42 Dream Eater','TM27 Fissure'],b:['Earth Badge']}),
+ L('r22','Route 22','route',12,74,{w:['Rattata','Spearow','Nidoran♀','Nidoran♂'],b:['Rival (early)']}),
+ L('r23','Route 23','route',4,52,{w:['Spearow','Fearow','Ditto']}),
+ L('victory','Victory Road','dungeon',4,34,{w:['Machop','Machoke','Geodude','Graveler','Onix','Marowak','Zubat','Golbat'],s:['Moltres'],i:['TM43 Sky Attack','TM47 Explosion','TM05 Mega Kick','Rare Candy']}),
+ L('indigo','Indigo Plateau','town',4,15,{b:['Lorelei','Bruno','Agatha','Lance','Champion']}),
+ L('r2','Route 2','route',25,60,{w:['Rattata','Pidgey','Nidoran♀','Nidoran♂'],i:['HM05 Flash','Moon Stone']}),
+ L('vforest','Viridian Forest','dungeon',25,49,{w:['Caterpie','Metapod','Pidgey','Pidgeotto'],i:['Antidote','Potion','Poké Ball']}),
+ L('pewter','Pewter City','town',25,37,{s:['Aerodactyl'],i:['TM34 Bide','Old Amber'],b:['Boulder Badge']}),
+ L('r3','Route 3','route',40,37,{w:['Spearow','Jigglypuff','Mankey']}),
+ L('mtmoon','Mt. Moon','dungeon',52,30,{w:['Zubat','Geodude','Paras','Clefairy'],s:['Omanyte','Kabuto'],i:['TM12 Water Gun','TM01 Mega Punch','Moon Stone','Rare Candy','HP Up','Escape Rope','Dome/Helix Fossil']}),
+ L('r4','Route 4','route',63,37,{w:['Rattata','Spearow','Mankey'],s:['Magikarp'],i:['TM04 Whirlwind']}),
+ L('cerulean','Cerulean City','town',76,37,{s:['Bulbasaur'],i:['TM11 BubbleBeam','TM28 Dig','Bicycle'],b:['Cascade Badge','Rival (Cerulean)']}),
+ L('r24','Route 24','route',76,23,{w:['Oddish','Bellsprout','Abra','Pidgey','Venonat'],s:['Charmander'],i:['Nugget','TM45 Thunder Wave']}),
+ L('r25','Route 25','route',91,14,{w:['Oddish','Bellsprout','Abra','Pidgey','Venonat'],i:['S.S. Ticket','TM19 Seismic Toss']}),
+ L('ccave','Cerulean Cave','dungeon',64,23,{w:['Kadabra','Parasect','Rhydon','Ditto','Wigglytuff','Chansey','Magneton','Electrode'],s:['Mewtwo'],i:['Max Revive','Ultra Ball']}),
+ L('r9','Route 9','route',91,37,{w:['Rattata','Spearow','Nidoran♀','Nidoran♂'],i:['TM30 Teleport']}),
+ L('r10','Route 10','route',104,30,{w:['Voltorb','Magnemite','Spearow']}),
+ L('power','Power Plant','dungeon',114,22,{w:['Voltorb','Magnemite','Magneton','Electrode'],s:['Zapdos'],i:['TM25 Thunder','TM33 Reflect']}),
+ L('rtunnel','Rock Tunnel','dungeon',104,44,{w:['Zubat','Geodude','Machop','Onix']}),
+ L('r5','Route 5','route',76,49,{w:['Pidgey','Oddish','Bellsprout','Mankey'],i:['Day Care']}),
+ L('saffron','Saffron City','town',76,61,{s:['Lapras','Hitmonlee','Hitmonchan'],i:['Master Ball','Card Key','TM46 Psywave','TM29 Psychic'],b:['Marsh Badge','Silph Co. (Giovanni)','Rival (Silph Co.)']}),
+ L('r6','Route 6','route',76,73,{w:['Pidgey','Oddish','Bellsprout','Mankey']}),
+ L('vermilion','Vermilion City','town',76,86,{s:['Squirtle'],i:['TM24 Thunderbolt','Bike Voucher','Old Rod'],b:['Thunder Badge']}),
+ L('ssanne','S.S. Anne','dungeon',76,98,{i:['HM01 Cut','TM08 Body Slam','TM44 Rest'],b:['Rival (S.S. Anne)']}),
+ L('r11','Route 11','route',91,86,{w:['Spearow','Drowzee'],i:['Itemfinder']}),
+ L('diglett','Diglett\u2019s Cave','dungeon',86,76,{w:['Diglett','Dugtrio']}),
+ L('r12','Route 12','route',104,78,{w:['Oddish','Bellsprout','Venonat','Pidgeotto'],s:['Snorlax'],i:['Super Rod','TM16 Pay Day']}),
+ L('lavender','Lavender Town','town',104,61,{i:['Poké Flute']}),
+ L('tower','Pokémon Tower','dungeon',115,61,{w:['Gastly','Haunter','Cubone'],b:['Rival (Tower)','Ghost Marowak']}),
+ L('r8','Route 8','route',91,61,{w:['Pidgey','Vulpix','Growlithe','Jigglypuff']}),
+ L('r7','Route 7','route',63,61,{w:['Pidgey','Vulpix','Growlithe','Jigglypuff']}),
+ L('celadon','Celadon City','town',49,61,{s:['Eevee','Abra','Vulpix','Wigglytuff','Scyther','Pinsir','Porygon'],i:['TM21 Mega Drain','TM13 Ice Beam','TM48 Rock Slide','TM49 Tri Attack','Silph Scope','Lift Key','Coin Case'],b:['Rainbow Badge','Rocket Hideout (Giovanni)']}),
+ L('r16','Route 16','route',36,61,{w:['Spearow','Doduo','Rattata'],s:['Snorlax'],i:['HM02 Fly']}),
+ L('r17','Route 17','route',36,84,{w:['Spearow','Fearow','Doduo','Raticate']}),
+ L('r18','Route 18','route',44,108,{w:['Spearow','Fearow','Doduo']}),
+ L('fuchsia','Fuchsia City','town',58,108,{i:['TM06 Toxic','Good Rod'],b:['Soul Badge']}),
+ L('safari','Safari Zone','dungeon',58,96,{w:['Nidoran♀','Nidoran♂','Nidorino','Nidorina','Rhyhorn','Exeggcute','Chansey','Kangaskhan','Tauros','Venonat','Parasect','Dratini'],i:['HM03 Surf','HM04 Strength','Gold Teeth','TM40 Skull Bash','TM32 Double Team']}),
+ L('r15','Route 15','route',72,108,{w:['Oddish','Bellsprout','Venonat','Pidgeotto','Ditto'],i:['Exp. All']}),
+ L('r14','Route 14','route',88,104,{w:['Oddish','Bellsprout','Venonat','Pidgeotto','Ditto']}),
+ L('r13','Route 13','route',102,95,{w:['Oddish','Bellsprout','Venonat','Pidgeotto','Ditto']}),
+ L('r19','Route 19','route',58,122,{w:['Tentacool']}),
+ L('seafoam','Seafoam Islands','dungeon',44,128,{w:['Seel','Dewgong','Psyduck','Slowpoke','Zubat','Shellder'],s:['Articuno']}),
+ L('r20','Route 20','route',34,128,{w:['Tentacool']}),
+ L('cinnabar','Cinnabar Island','town',25,128,{w:['Rattata','Raticate','Grimer','Muk','Ponyta','Growlithe'],s:['Omanyte','Kabuto','Aerodactyl'],i:['TM38 Fire Blast','Secret Key'],b:['Volcano Badge']}),
+ L('r21','Route 21','route',25,118,{w:['Tangela','Pidgey','Rattata','Tentacool']}),
+];
+const EDGES = 'pallet-r1 r1-viridian viridian-r22 r22-r23 r23-victory victory-indigo viridian-r2 r2-vforest vforest-pewter pewter-r3 r3-mtmoon mtmoon-r4 r4-cerulean cerulean-r24 r24-r25 cerulean-ccave cerulean-r9 r9-r10 r10-power r10-rtunnel rtunnel-lavender cerulean-r5 r5-saffron saffron-r6 r6-vermilion vermilion-ssanne vermilion-r11 r11-diglett r11-r12 r12-lavender lavender-tower lavender-r8 r8-saffron saffron-r7 r7-celadon celadon-r16 r16-r17 r17-r18 r18-fuchsia fuchsia-safari fuchsia-r15 r15-r14 r14-r13 r13-r12 fuchsia-r19 r19-seafoam seafoam-r20 r20-cinnabar cinnabar-r21 r21-pallet'.split(' ').map(e=>e.split('-'));
+
+/* ============================================================
+   STATE — saved on device; falls back to memory if unavailable
+   ============================================================ */
+const KEY='kanto-yellow-v1';
+let mem=null;
+const store={
+  load(){try{const v=localStorage.getItem(KEY);if(v)return JSON.parse(v)}catch(e){} return mem||{caught:{},done:{}}},
+  save(s){mem=s;try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
+};
+let S=store.load(); S.caught ||= {}; S.done ||= {}; S.mons ||= [];
+const byId=Object.fromEntries(LOCS.map(l=>[l.id,l]));
+const dk=(loc,k,n)=>`${loc}|${k}|${n}`;
+const save=()=>{store.save(S);refresh()};
+
+// Where each species can be found
+const WHERE={}; DEX.forEach(n=>WHERE[n]=[]);
+LOCS.forEach(l=>{[...l.w,...l.s].forEach(n=>{if(WHERE[n]&&!WHERE[n].includes(l.id))WHERE[n].push(l.id)})});
+
+/* ============================================================
+   PROGRESS
+   ============================================================ */
+function locStatus(l){
+  const pk=[...new Set([...l.w,...l.s])];
+  const total=pk.length+l.i.length+l.b.length;
+  const got=pk.filter(n=>S.caught[n]).length+l.i.filter(n=>S.done[dk(l.id,'i',n)]).length+l.b.filter(n=>S.done[dk(l.id,'b',n)]).length;
+  return {total,got,left:{w:l.w.filter(n=>!S.caught[n]).length,s:l.s.filter(n=>!S.caught[n]).length,i:l.i.filter(n=>!S.done[dk(l.id,'i',n)]).length,b:l.b.filter(n=>!S.done[dk(l.id,'b',n)]).length}};
+}
+function totals(){
+  const dex=DEX.filter(n=>S.caught[n]).length;
+  let it=0,itT=0,bt=0,btT=0,badges=0;
+  LOCS.forEach(l=>{itT+=l.i.length;btT+=l.b.length;
+    l.i.forEach(n=>{if(S.done[dk(l.id,'i',n)])it++});
+    l.b.forEach(n=>{if(S.done[dk(l.id,'b',n)]){bt++;if(/Badge$/.test(n))badges++}})});
+  const all=(dex+it+bt)/(DEX.length+itT+btT);
+  return {dex,it,itT,bt,btT,badges,all};
+}
+
+/* ============================================================
+   MAP
+   ============================================================ */
+const svg=document.getElementById('map'), NS='http://www.w3.org/2000/svg';
+let filter=null;
+const SHORT={pallet:'Pallet',tower:'Tower',seafoam:'Seafoam',vforest:'Forest',ccave:'Cave',diglett:'Diglett’s',indigo:'Indigo',victory:'Victory Rd',ssanne:'S.S. Anne',power:'Power Plant',rtunnel:'Tunnel'};
+const UP=new Set(['ccave','tower','power','indigo','seafoam','safari','diglett']);
+const FILTERS=[['w','Wild'],['s','Special'],['i','Items'],['b','Battles']];
+function drawMap(){
+  svg.innerHTML='';
+  const g=document.createElementNS(NS,'g');
+  EDGES.forEach(([a,b])=>{const A=byId[a],B=byId[b];const ln=document.createElementNS(NS,'line');
+    Object.entries({x1:A.x,y1:A.y,x2:B.x,y2:B.y,class:'edge'}).forEach(([k,v])=>ln.setAttribute(k,v));g.appendChild(ln)});
+  LOCS.forEach(l=>{
+    const st=locStatus(l), n=document.createElementNS(NS,'g');
+    const dim = filter && st.left[filter]===0;
+    n.setAttribute('class',`node ${l.t}${st.total&&st.got===st.total?' complete':''}${dim?' dim':''}${sel===l.id?' sel':''}`);
+    n.dataset.id=l.id; n.setAttribute('role','button'); n.setAttribute('aria-label',`${l.name}, ${st.got} of ${st.total} done`);
+    n.innerHTML=`<circle class="hit" cx="${l.x}" cy="${l.y}" r="5.5"/><circle class="ring" cx="${l.x}" cy="${l.y}" r="6"/><g class="ic" transform="translate(${l.x} ${l.y})">${ICON(l)}</g>`+
+      (st.total&&st.got===st.total?`<circle class="done" cx="${l.x+3.6}" cy="${l.y-3.4}" r="1.7"/><path d="M${l.x+2.9} ${l.y-3.4}l.55.6 1-1.2"/>`:'')+
+      (l.b.some(x=>/Badge$/.test(x)&&S.done[dk(l.id,'b',x)])?`<path class="star" transform="translate(${l.x-3.8} ${l.y-4.2}) scale(.55)" d="M0-3 .9-.9 3-.9 1.3.4 2 2.6 0 1.3-2 2.6-1.3.4-3-.9-.9-.9Z"/>`:'');
+    const t=document.createElementNS(NS,'text');
+    const label = l.t==='route' ? l.name.replace('Route ','') : (SHORT[l.id]||l.name.replace(/ (City|Town|Island)$/,''));
+    const up = UP.has(l.id);
+    t.setAttribute('x', l.t==='route'? l.x+3.2 : l.x); t.setAttribute('y', l.t==='route'? l.y+1 : up? l.y-5.6 : l.y+7.6);
+    t.setAttribute('text-anchor', l.t==='route'?'start':'middle'); t.textContent=label;
+    n.appendChild(t); g.appendChild(n);
+  });
+  svg.appendChild(g);
+  const here=S.here&&byId[S.here.loc];
+  if(here){const p=document.createElementNS(NS,'g');p.setAttribute('class','pin');p.setAttribute('pointer-events','none');
+    p.innerHTML=`<circle class="pulse" cx="${here.x}" cy="${here.y}" r="5"/><g transform="translate(${here.x} ${here.y-6.2})"><path class="body" d="M0 3.6C-1.2 2-2.6.6-2.6-1.1a2.6 2.6 0 0 1 5.2 0C2.6.6 1.2 2 0 3.6Z"/><circle class="dot" cx="0" cy="-1.1" r="1"/></g>`;
+    svg.appendChild(p)}
+  drawHere();
+}
+function drawHere(){const el=document.getElementById('here');if(!el)return;const h=S.here;
+  if(!h||!byId[h.loc]){el.innerHTML='';return}
+  const place=byId[h.loc].name, stem=place.replace(/ (City|Town|Island|Plateau)$/,''), sub=h.map&&h.map!==place?h.map.replace(new RegExp('^'+stem.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+' '),''):'';
+  el.innerHTML=`<button><b>● You're here:</b> ${esc(place)}${sub?` · ${esc(sub)}`:''}</button>`;
+  el.firstChild.onclick=()=>{focusLoc(h.loc);openLoc(h.loc)}}
+/* Map icons — drawn around (0,0), sized for the map's coordinate space */
+const TOWNCOL={pallet:'#F4F1E6',viridian:'#3E9B5A',pewter:'#8C9098',cerulean:'#3A86C8',vermilion:'#E0513A',lavender:'#9A7CC9',celadon:'#5FB39A',fuchsia:'#D94E9B',saffron:'#E9A628',cinnabar:'#C9362E',indigo:'#4B4FA8'};
+const SEA=new Set(['r19','r20','r21']);
+function ICON(l){
+  const c=TOWNCOL[l.id]||'#B7C48A';
+  const house=(x,y,w,h,roof)=>`<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" fill="#F4F1E6"/><path d="M${x-w/2-.6} ${y-h/2+.1}L${x} ${y-h/2-h*.7}L${x+w/2+.6} ${y-h/2+.1}Z" fill="${roof}"/><rect class="nos" x="${x-.45}" y="${y+h/2-1.3}" width=".9" height="1.3" fill="var(--scr3)"/>`;
+  if(l.id==='indigo')return `<rect x="-3.4" y="-1.6" width="6.8" height="4.2" fill="#F4F1E6"/><rect x="-1.4" y="-4.2" width="2.8" height="2.8" fill="${c}"/><path d="M-3.9-1.6H3.9L3.4-2.6H-3.4Z" fill="${c}"/><path d="M0-4.2V-6.4" fill="none"/><path class="nos" d="M0-6.4L1.8-5.8 0-5.2Z" fill="#F2C230"/><rect class="nos" x="-.5" y="1.2" width="1" height="1.4" fill="var(--scr3)"/>`;
+  if(l.t==='town'){const small=/Town|Island/.test(l.name);
+    const island=l.id==='cinnabar'?`<ellipse cx="0" cy="2.6" rx="4.6" ry="1.3" fill="#E6D39A"/>`:'';
+    return small?island+house(0,.4,4.4,3.2,c):house(-1.7,.8,3.6,2.8,c)+house(1.9,-.2,3.4,3.6,c);}
+  if(l.t==='route')return SEA.has(l.id)
+    ?`<path d="M-2.4.2q.6-.9 1.2 0t1.2 0 1.2 0 1.2 0M-2.4 1.5q.6-.9 1.2 0t1.2 0 1.2 0 1.2 0" fill="none" stroke="#3A86C8" stroke-width=".6"/>`
+    :`<path d="M-1.9 1.3L-1.1-1.3-.4 1.3M-.4 1.3L.3-1.9 1 1.3M1 1.3L1.7-.9 2.2 1.3" fill="#7DB35A"/><path d="M-2.3 1.3H2.5" fill="none"/>`;
+  switch(l.id){
+    case 'vforest': return `<rect class="nos" x="-.5" y="1.6" width="1" height="1.4" fill="#7A5230"/><path d="M0-3.8L2.6-.6H1.4L3.1 1.8H-3.1L-1.4-.6H-2.6Z" fill="#3E7D3A"/>`;
+    case 'power': return `<rect x="-3.2" y="-2.4" width="6.4" height="5" rx=".6" fill="#8C9098"/><path d="M.6-3.6L-1.5.4H.1L-.7 3.6 1.7-.6H0Z" fill="#F2C230"/>`;
+    case 'tower': return `<rect x="-1.9" y="-2.6" width="3.8" height="5.8" fill="#B7A6D6"/><path d="M-2.4-2.6L0-5.4 2.4-2.6Z" fill="#6F58A0"/><rect class="nos" x="-.9" y="-1.6" width=".7" height=".9" fill="var(--scr3)"/><rect class="nos" x=".2" y="-1.6" width=".7" height=".9" fill="var(--scr3)"/><rect class="nos" x="-.9" y=".4" width=".7" height=".9" fill="var(--scr3)"/><rect class="nos" x=".2" y=".4" width=".7" height=".9" fill="var(--scr3)"/>`;
+    case 'ssanne': return `<path d="M-4.2.4H4.2L3 2.8H-3Z" fill="#F4F1E6"/><rect x="-2.2" y="-1.4" width="4" height="1.8" fill="#F4F1E6"/><rect x=".4" y="-3.2" width="1.2" height="1.8" fill="#E0513A"/><path d="M-4.2 3.2q.7-.6 1.4 0t1.4 0 1.4 0 1.4 0 1.4 0 1.4 0" fill="none" stroke="#3A86C8" stroke-width=".5"/>`;
+    case 'safari': return `<circle cx="-1.6" cy=".4" r="1.8" fill="#6FA84A"/><circle cx="1.6" cy=".4" r="1.8" fill="#6FA84A"/><circle cx="0" cy="-1.3" r="2" fill="#86BD5A"/><path d="M-3.4 2.6H3.4" fill="none"/>`;
+    case 'seafoam': return `<path d="M-3.6 2L-1.8-2.4-.4-.6 1-3.2 3.6 2Z" fill="#CFE8F2"/><path d="M-4.2 2.9q.7-.6 1.4 0t1.4 0 1.4 0 1.4 0 1.4 0 1.4 0" fill="none" stroke="#3A86C8" stroke-width=".5"/>`;
+    case 'diglett': return `<path d="M-3.6 2.4Q0-3.2 3.6 2.4Z" fill="#B08D5A"/><ellipse class="nos" cx="0" cy="1.2" rx="1.3" ry="1" fill="var(--scr3)"/>`;
+    default: return `<path d="M-3.8 2.4L-1.2-2.8.2-1 1.4-3.2 3.8 2.4Z" fill="#A58A62"/><path class="nos" d="M-1.3 2.4V1.2A1.3 1.3 0 0 1 1.3 1.2V2.4Z" fill="var(--scr3)"/>`;
+  }
+}
+// Pan & pinch zoom on the SVG viewBox
+const VB0={x:-10,y:4,w:140,h:136}; let vb={...VB0};
+const setVB=()=>svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+function zoomAt(f,cx,cy){const nw=Math.min(VB0.w*1.5,Math.max(20,vb.w*f));const k=nw/vb.w;
+  vb.x=cx-(cx-vb.x)*k; vb.y=cy-(cy-vb.y)*k; vb.w=nw; vb.h=vb.h*k; setVB()}
+function toSvg(px,py){const r=svg.getBoundingClientRect();const s=Math.max(vb.w/r.width,vb.h/r.height);
+  const ox=(r.width-vb.w/s)/2, oy=(r.height-vb.h/s)/2;return {x:vb.x+(px-r.left-ox)*s,y:vb.y+(py-r.top-oy)*s,s}}
+const ptrs=new Map(); let moved=0, lastD=0;
+svg.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;if(ptrs.size===2){const[a,b]=[...ptrs.values()];lastD=Math.hypot(a.x-b.x,a.y-b.y)}});
+svg.addEventListener('pointermove',e=>{
+  if(!ptrs.has(e.pointerId))return; const p=ptrs.get(e.pointerId);
+  const dx=e.clientX-p.x, dy=e.clientY-p.y; moved+=Math.abs(dx)+Math.abs(dy);
+  if(ptrs.size===1){const {s}=toSvg(0,0);vb.x-=dx*s;vb.y-=dy*s;setVB()}
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===2){const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(lastD){const c=toSvg((a.x+b.x)/2,(a.y+b.y)/2);zoomAt(lastD/d,c.x,c.y)} lastD=d}
+});
+const up=e=>{
+  if(ptrs.size===1&&moved<8){const n=e.target.closest&&e.target.closest('[data-id]');if(n)openLoc(n.dataset.id)}
+  ptrs.delete(e.pointerId); if(ptrs.size<2)lastD=0};
+svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);lastD=0});
+svg.addEventListener('wheel',e=>{e.preventDefault();const c=toSvg(e.clientX,e.clientY);zoomAt(e.deltaY>0?1.12:0.89,c.x,c.y)},{passive:false});
+svg.addEventListener('keydown',e=>{if(e.key==='Enter'){const n=e.target.closest('[data-id]');if(n)openLoc(n.dataset.id)}});
+document.getElementById('zin').onclick=()=>zoomAt(.75,vb.x+vb.w/2,vb.y+vb.h/2);
+document.getElementById('zout').onclick=()=>zoomAt(1.33,vb.x+vb.w/2,vb.y+vb.h/2);
+document.getElementById('zreset').onclick=()=>{vb={...VB0};setVB()};
+function focusLoc(id){const l=byId[id];vb.w=50;vb.h=55;vb.x=l.x-25;vb.y=l.y-27;setVB()}
+
+const chips=document.getElementById('chips');
+FILTERS.forEach(([k,label])=>{const b=document.createElement('button');b.className='chip';b.textContent=label;b.setAttribute('aria-label',`Show places with ${label.toLowerCase()} left`);b.setAttribute('aria-pressed','false');
+  b.onclick=()=>{filter=filter===k?null:k;[...chips.children].forEach(c=>c.setAttribute('aria-pressed',String(c===b&&filter===k)));drawMap()};chips.appendChild(b)});
+
+/* ============================================================
+   DEX DATA + SPRITES  (data in dex-data.js, built from Yellow's own tables)
+   Sprites are Pokémon Yellow's in-game sprites, loaded from the PokeAPI
+   sprites repo and cached on the device for offline use.
+   ============================================================ */
+const D=DEXDATA, MV=id=>D.MOVES[id-1], MON=n=>D.MON[n-1], NAME=n=>DEX[n-1];
+const dexNo=name=>DEX.indexOf(name)+1;
+const SPRITE=n=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/yellow/transparent/${n}.png`;
+const SPR_CACHE='kanto-sprites';
+const img=(n,cls='spr')=>`<img class="${cls}" crossorigin="anonymous" src="${SPRITE(n)}" alt="" loading="lazy" onerror="this.classList.add('miss')">`;
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TCOL={Normal:'#9A9870',Fire:'#D9692E',Water:'#4F7FD0',Grass:'#5C9E3A',Electric:'#C9A40E',Ice:'#4FA7A3',Fighting:'#B0402F',Poison:'#8E4893',Ground:'#B08D3E',Flying:'#7F74C9',Psychic:'#D84F72',Bug:'#859A1C',Rock:'#9C8836',Ghost:'#5E4E86',Dragon:'#5E43CF'};
+const typeChip=t=>`<span class="type" style="background:${TCOL[t]}">${t}</span>`;
+const tmName=k=>k>50?`HM${String(k-50).padStart(2,'0')}`:`TM${String(k).padStart(2,'0')}`;
+const PRE={}; D.MON.forEach((m,i)=>m.ev.forEach(e=>PRE[e[2]]=i+1));
+const evoText=e=>e[0]==='L'?`Lv ${e[1]}`:e[0]==='I'?e[1]:'Trade';
+// Moves a Pokémon knows at a level, the way the game fills them in: the last 4 learned
+function movesAt(n,lvl){const m=[...MON(n).l1];MON(n).lv.forEach(([l,id])=>{if(l<=lvl&&!m.includes(id)){m.push(id);if(m.length>4)m.shift()}});return m}
+const ownedOf=n=>S.mons.filter(m=>m.n===n);
+
+const toastEl=document.getElementById('toast'); let toastT;
+// Counts how many of the 151 sprites are stored. Read-only: it never deletes anything.
+async function spriteCount(){try{
+  const c=await caches.open(SPR_CACHE);
+  const hits=await Promise.all(DEX.map((_,i)=>c.match(SPRITE(i+1),{ignoreVary:true,ignoreSearch:true})));
+  return hits.filter(Boolean).length}catch(e){return null}}
+function toast(msg){toastEl.textContent=msg;toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),3200)}
+
+/* ============================================================
+   SHEET
+   ============================================================ */
+let sel=null;
+const sheet=document.getElementById('sheet'), sBody=document.getElementById('sheetBody'), sBack=document.getElementById('sheetBack');
+let backFn=null;
+function sheetOpen(title,back=null){
+  document.getElementById('sheetTitle').textContent=title; sBody.innerHTML='';
+  backFn=back; sBack.hidden=!back; sheet.classList.add('on'); return sBody;
+}
+sBack.onclick=()=>{const f=backFn;if(f)f()};
+function tickRow(label,checked,onToggle,extra=''){
+  const r=document.createElement('div');r.className='row'+(checked?' got':'');
+  r.innerHTML=`<button class="tick" role="checkbox" aria-checked="${checked}" aria-label="${label}">${checked?'✓':''}</button><span class="name">${label}${extra}</span>`;
+  r.querySelector('.tick').onclick=onToggle; return r;
+}
+function openLoc(id){
+  sel=id; const l=byId[id]; sheetOpen(l.name); sBody.scrollTop=0;
+  const sec=(title,arr,build)=>{const h=document.createElement('h3');h.textContent=title;sBody.appendChild(h);
+    if(!arr.length){const p=document.createElement('p');p.className='empty';p.textContent='None here.';sBody.appendChild(p);return}
+    arr.forEach(n=>sBody.appendChild(build(n)))};
+  const mon=n=>{const r=document.createElement('div');const got=!!S.caught[n];r.className='row'+(got?' got':'');
+    r.innerHTML=`<button class="tick" role="checkbox" aria-checked="${got}" aria-label="Caught ${n}">${got?'✓':''}</button>${img(dexNo(n),'spr sm')}<span class="name"><button class="nm">${n}</button></span>`;
+    r.querySelector('.tick').onclick=()=>{S.caught[n]=!S.caught[n];save();openLoc(id)};
+    r.querySelector('.nm').onclick=()=>openDex(dexNo(n),()=>openLoc(id));
+    return r};
+  sec('Wild Pokémon',l.w,mon);
+  if(l.s.length)sec('Gift, static and prize Pokémon',l.s,mon);
+  sec('Items, TMs and key items',l.i,n=>{const k=dk(id,'i',n);return tickRow(n,!!S.done[k],()=>{S.done[k]=!S.done[k];save();openLoc(id)})});
+  if(l.b.length)sec('Badges and key battles',l.b,n=>{const k=dk(id,'b',n);return tickRow(n,!!S.done[k],()=>{S.done[k]=!S.done[k];save();openLoc(id)})});
+  drawMap();
+}
+function closeSheet(){sheet.classList.remove('on');sel=null;backFn=null;drawMap()}
+document.getElementById('sheetClose').onclick=closeSheet;
+
+/* ============================================================
+   POKÉDEX LIST
+   ============================================================ */
+let dexFilter='all';
+function drawDex(){
+  const el=document.getElementById('dexList'); el.innerHTML='';
+  const bar=document.createElement('div');bar.className='dexbar';
+  [['all','All'],['need','Still needed'],['got','Caught']].forEach(([k,t])=>{const b=document.createElement('button');b.className='chip';b.textContent=t;b.setAttribute('aria-pressed',String(dexFilter===k));b.onclick=()=>{dexFilter=k;drawDex()};bar.appendChild(b)});
+  el.appendChild(bar);
+  DEX.forEach((n,i)=>{
+    const got=!!S.caught[n]; if(dexFilter==='need'&&got||dexFilter==='got'&&!got)return;
+    const r=document.createElement('div');r.className='row'+(got?' got':'');r.id='dex-'+i;
+    const w=WHERE[n], own=ownedOf(i+1).length;
+    r.innerHTML=`<span class="num">${String(i+1).padStart(3,'0')}</span>${img(i+1)}<span class="name"><button class="nm">${n}</button> ${MON(i+1).t.map(typeChip).join('')}<span class="where"></span></span>${own?`<span class="own" aria-label="${own} logged">×${own}</span>`:''}<button class="tick" role="checkbox" aria-checked="${got}" aria-label="Caught ${n}">${got?'✓':''}</button>`;
+    const wh=r.querySelector('.where');
+    if(w.length) w.forEach(id=>{const a=document.createElement('button');a.className='link';a.textContent=byId[id].name;a.onclick=()=>{tab('map');focusLoc(id);openLoc(id)};wh.appendChild(a)});
+    else wh.textContent='Evolve or trade';
+    r.querySelector('.nm').onclick=()=>openDex(i+1);
+    r.querySelector('.spr').onclick=()=>openDex(i+1);
+    r.querySelector('.tick').onclick=()=>{S.caught[n]=!got;save()};
+    el.appendChild(r);
+  });
+}
+
+/* ============================================================
+   POKÉDEX DETAIL
+   ============================================================ */
+function openDex(n,back=null){
+  const m=MON(n), name=NAME(n), got=!!S.caught[name];
+  const b=sheetOpen(`#${String(n).padStart(3,'0')} ${name}`,back); b.scrollTop=0;
+  const self=()=>openDex(n,back);
+  const [cat,ht,wt]=m.de;
+  let h=`<div class="dexhead"><div class="screen">${img(n,'spr big')}</div><div class="meta">
+    <b>${cat} Pokémon</b><br>${m.t.map(typeChip).join('')}<br>Height ${ht} · Weight ${wt} lb</div></div>
+    <div class="btns"><button id="dCaught" aria-pressed="${got}">${got?'✓ Caught':'Mark as caught'}</button><button id="dLog">+ Log one I caught</button><button id="dVs">Versus ›</button></div>`;
+  // Owned
+  const own=ownedOf(n);
+  if(own.length){h+=`<h3>Yours (${own.length})</h3><div id="dOwn"></div>`}
+  // Stats
+  const SN=['HP','Atk','Def','Spd','Spc'];
+  h+=`<h3>Base stats</h3>`+m.st.map((v,i)=>`<div class="sb"><span>${SN[i]}</span><span>${v}</span><div class="bar"><i style="width:${Math.min(100,v/160*100)}%"></i></div></div>`).join('')+
+     `<div class="sb"><span>Total</span><span>${m.st.reduce((a,c)=>a+c,0)}</span><span></span></div>`;
+  h+=`<h3>Training</h3><dl class="kv"><dt>Catch rate</dt><dd>${m.cr} / 255</dd><dt>Base exp.</dt><dd>${m.bx}</dd><dt>Growth rate</dt><dd>${m.gr}</dd></dl>`;
+  // Evolution
+  const r=(()=>{let k=n;while(PRE[k])k=PRE[k];return k})();
+  if(MON(r).ev.length){
+    let stages=[[[r,null]]], cur=[r];
+    while(true){const nx=[];cur.forEach(k=>MON(k).ev.forEach(e=>nx.push([e[2],e])));if(!nx.length)break;stages.push(nx);cur=nx.map(x=>x[0])}
+    h+=`<h3>Evolution</h3><div class="evo">`+stages.map((st,i)=>(i?'<span class="arrow">›</span>':'')+`<div class="stage">`+
+      st.map(([k,e])=>`<button data-n="${k}" class="${k===n?'cur':''}">${img(k,'spr sm')}${NAME(k)}${e?`<small>${evoText(e)}</small>`:''}</button>`).join('')+`</div>`).join('')+`</div>`;
+    if(n===25||r===25&&n===26)h+=`<p class="hint">Your starter Pikachu refuses the Thunder Stone. A Pikachu traded in from another game can evolve.</p>`;
+  }
+  // Where
+  h+=`<h3>Where to find</h3><div id="dWhere"></div>`;
+  // Level-up moves
+  const lvl=[...m.l1.map(id=>[1,id]),...m.lv];
+  const row=([l,id])=>{const [mn,ty,pw,ac,pp]=MV(id);return `<tr><td>${l}</td><td>${mn}</td><td>${typeChip(ty)}</td><td>${pw>1?pw:'—'}</td><td>${ac}%</td><td>${pp}</td></tr>`};
+  h+=`<h3>Moves learned by level</h3><table class="mv"><tr><th>Lv</th><th>Move</th><th>Type</th><th>Pow</th><th>Acc</th><th>PP</th></tr>${lvl.map(row).join('')}</table>`;
+  h+=`<h3>TMs and HMs it can learn (${m.tm.length})</h3>`+(m.tm.length?`<div class="tms">${m.tm.map(k=>`<span><b>${tmName(k)}</b>${MV(D.TM[k-1])[0]}</span>`).join('')}</div>`:`<p class="empty">None.</p>`);
+  b.innerHTML=h;
+  b.querySelector('#dCaught').onclick=()=>{S.caught[name]=!got;save();self()};
+  b.querySelector('#dLog').onclick=()=>openEdit(null,n,self);
+  b.querySelector('#dVs').onclick=()=>{vsSel={n,id:null};tab('vs')};
+  b.querySelectorAll('.evo button').forEach(x=>x.onclick=()=>openDex(+x.dataset.n,back));
+  const wh=b.querySelector('#dWhere');
+  if(WHERE[name].length)WHERE[name].forEach(id=>{const a=document.createElement('button');a.className='link';a.textContent=byId[id].name;a.onclick=()=>{tab('map');focusLoc(id);openLoc(id)};wh.appendChild(a)});
+  else wh.innerHTML='<p class="empty">Evolve or trade.</p>';
+  if(own.length){const o=b.querySelector('#dOwn');own.forEach(pm=>o.appendChild(monCard(pm,self)))}
+}
+
+/* ============================================================
+   TEAM — every Pokémon you log, with level and moves
+   ============================================================ */
+function monCard(pm,back){
+  const m=MON(pm.n), c=document.createElement('div'); c.className='card';
+  const next=m.lv.find(([l])=>l>pm.lvl);
+  const hints=[]; if(pm.hp)hints.push(`HP ${pm.hp[0]}/${pm.hp[1]}`); if(next)hints.push(`Next move: ${MV(next[1])[0]} at Lv ${next[0]}`);
+  m.ev.forEach(e=>{if(e[0]==='L'&&pm.lvl>=e[1])hints.push(`Can evolve into ${NAME(e[2])}`);else if(e[0]==='L')hints.push(`Evolves at Lv ${e[1]}`);else if(pm.n!==25)hints.push(`${evoText(e)} → ${NAME(e[2])}`)});
+  const mv=[0,1,2,3].map(i=>{const id=pm.moves[i];if(!id)return `<span class="none">—</span>`;const [mn,ty]=MV(id);return `<span style="border-left-color:${TCOL[ty]}">${mn}</span>`}).join('');
+  c.innerHTML=`${img(pm.n)}<div class="info"><div class="top"><b>${esc(pm.nick||NAME(pm.n))}</b>${pm.nick?`<small>${NAME(pm.n)}</small>`:''}<span class="lv">Lv ${pm.lvl}</span></div>
+    <div class="moves">${mv}</div>${hints.length?`<p class="hint">${hints.join(' · ')}</p>`:''}</div>
+    ${pm.src==='save'?'':`<div class="acts"><button data-a="up" aria-label="Level up">+1 Lv</button><button data-a="ed">Edit</button></div>`}`;
+  if(pm.src==='save'){c.querySelector('.spr').onclick=()=>openDex(pm.n,back);return c}
+  c.querySelector('[data-a=ed]').onclick=()=>openEdit(pm.id,pm.n,back);
+  c.querySelector('.spr').onclick=()=>openDex(pm.n,back);
+  c.querySelector('[data-a=up]').onclick=()=>{
+    if(pm.lvl>=100)return; pm.lvl++;
+    const learn=m.lv.filter(([l])=>l===pm.lvl).map(([,id])=>MV(id)[0]);
+    const ev=m.ev.find(e=>e[0]==='L'&&e[1]===pm.lvl);
+    save(); if(back&&sheet.classList.contains('on'))back();
+    const msg=[]; if(learn.length)msg.push(`${pm.nick||NAME(pm.n)} can learn ${learn.join(' and ')}. Tap Edit to swap a move.`);
+    if(ev)msg.push(`Ready to evolve into ${NAME(ev[2])}.`);
+    toast(msg.join(' ')||`${pm.nick||NAME(pm.n)} grew to Lv ${pm.lvl}.`);
+  };
+  return c;
+}
+function drawTeam(){
+  const el=document.getElementById('teamList'); el.innerHTML='';
+  const top=document.createElement('div'); top.className='dexbar';
+  top.innerHTML=`<button class="bigbtn" id="tSync">Import save</button><button class="bigbtn" id="tAdd" style="background:var(--paper)">+ Log by hand</button>`; el.appendChild(top);
+  top.querySelector('#tSync').onclick=importSave;
+  top.querySelector('#tAdd').onclick=()=>openEdit(null,25,null);
+  if(!S.mons.length){el.insertAdjacentHTML('beforeend',`<div class="stat"><p class="note">Tap <b>Import save</b> and pick your Pokémon Yellow save file to load your party and boxes with their levels and moves. You can also log Pokémon by hand from any Pokédex entry.</p></div>`);return}
+  const sec=(t,arr)=>{if(!arr.length)return;const h=document.createElement('h2');h.className='sec';h.textContent=`${t} (${arr.length})`;el.appendChild(h);arr.forEach(pm=>el.appendChild(monCard(pm,null)))};
+  const fromSave=S.mons.filter(m=>m.src==='save'), hand=S.mons.filter(m=>m.src!=='save');
+  const groups=[...new Set(fromSave.map(m=>m.where))];
+  groups.forEach(g=>sec(g,fromSave.filter(m=>m.where===g)));
+  sec(fromSave.length?'Logged by hand':'Party',hand.filter(m=>m.party||fromSave.length));
+  if(!fromSave.length)sec('Box',hand.filter(m=>!m.party).sort((a,b)=>a.n-b.n||b.lvl-a.lvl));
+}
+
+/* Editor */
+function openEdit(id,n,back){
+  const existing=S.mons.find(m=>m.id===id);
+  const pm=existing?{...existing,moves:[...existing.moves]}:{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),n,nick:'',lvl:5,moves:movesAt(n,5),loc:'',party:S.mons.filter(m=>m.party&&m.src!=='save').length<6};
+  let touched=!!existing;
+  const b=sheetOpen(existing?`Edit ${existing.nick||NAME(existing.n)}`:'Log a Pokémon',back);
+  b.innerHTML=`<div class="form">
+    <div class="dexhead"><div class="screen" id="eSpr"></div><div class="meta" id="eMeta"></div></div>
+    <label for="eSp">Species</label><select id="eSp">${DEX.map((d,i)=>`<option value="${i+1}">#${String(i+1).padStart(3,'0')} ${d}</option>`).join('')}</select>
+    <label for="eNick">Nickname (optional)</label><input id="eNick" maxlength="10" autocomplete="off" value="${esc(pm.nick)}">
+    <label for="eLv">Level</label><div class="lvl"><button type="button" id="eDn" aria-label="Level down">−</button><input id="eLv" type="number" inputmode="numeric" min="1" max="100" value="${pm.lvl}"><button type="button" id="eUp" aria-label="Level up">+</button></div>
+    <label>Moves</label><div class="mvslots" id="eMv"></div>
+    <div class="btns"><button type="button" id="eFill">Use moves for this level</button></div>
+    <div id="eEvo"></div>
+    <label for="eLoc">Where you got it</label><select id="eLoc"><option value="">Not recorded</option>${LOCS.map(l=>`<option value="${l.id}">${l.name}</option>`).join('')}<option value="evolved">Evolved</option><option value="trade">Trade</option></select>
+    <label class="chk"><input type="checkbox" id="eParty"> In my party</label>
+    <div class="btns" style="margin-top:16px"><button class="bigbtn" id="eSave">Save</button>${existing?'<button id="eDel">Release (delete)</button>':''}</div></div>`;
+  const $=q=>b.querySelector(q);
+  $('#eSp').value=pm.n; $('#eLoc').value=pm.loc||''; $('#eParty').checked=!!pm.party;
+  const paint=()=>{
+    const m=MON(pm.n);
+    $('#eSpr').innerHTML=img(pm.n,'spr big');
+    $('#eMeta').innerHTML=`<b>${NAME(pm.n)}</b><br>${m.t.map(typeChip).join('')}`;
+    // move options: learnable now, learnable later, TM/HM, everything else
+    const now=[...m.l1.map(i=>[1,i]),...m.lv].filter(([l])=>l<=pm.lvl), later=m.lv.filter(([l])=>l>pm.lvl);
+    const used=new Set([...now,...later].map(x=>x[1]).concat(m.tm.map(k=>D.TM[k-1])));
+    const opt=(v,t)=>`<option value="${v}">${t}</option>`;
+    const others=D.MOVES.map((x,i)=>i+1).filter(i=>!used.has(i)).sort((a,c)=>MV(a)[0].localeCompare(MV(c)[0]));
+    const html=opt(0,'— empty —')+
+      `<optgroup label="Learned by Lv ${pm.lvl}">${now.map(([l,i])=>opt(i,`Lv ${l} · ${MV(i)[0]}`)).join('')}</optgroup>`+
+      (later.length?`<optgroup label="Learns later">${later.map(([l,i])=>opt(i,`Lv ${l} · ${MV(i)[0]}`)).join('')}</optgroup>`:'')+
+      (m.tm.length?`<optgroup label="TMs and HMs">${m.tm.map(k=>opt(D.TM[k-1],`${tmName(k)} · ${MV(D.TM[k-1])[0]}`)).join('')}</optgroup>`:'')+
+      `<optgroup label="Other moves">${others.map(i=>opt(i,MV(i)[0])).join('')}</optgroup>`;
+    const box=$('#eMv'); box.innerHTML='';
+    for(let s=0;s<4;s++){const sl=document.createElement('select');sl.setAttribute('aria-label',`Move ${s+1}`);sl.innerHTML=html;
+      // dedupe repeated options (a move can be both level-up and TM) — keep the first
+      const seen=new Set();[...sl.options].forEach(o=>{if(o.value!=='0'&&seen.has(o.value))o.remove();else seen.add(o.value)});
+      sl.value=pm.moves[s]||0; sl.onchange=()=>{touched=true;pm.moves[s]=+sl.value};box.appendChild(sl)}
+    const ev=$('#eEvo'); ev.innerHTML='';
+    if(m.ev.length&&pm.n!==25){ev.innerHTML=`<label>Evolve</label><div class="btns">${m.ev.map(e=>`<button type="button" data-t="${e[2]}">→ ${NAME(e[2])} <small>(${evoText(e)})</small></button>`).join('')}</div>`;
+      ev.querySelectorAll('button').forEach(x=>x.onclick=()=>{pm.n=+x.dataset.t;$('#eSp').value=pm.n;touched=true;paint();toast(`Evolved into ${NAME(pm.n)}. Save to keep it.`)})}
+  };
+  const setLv=v=>{pm.lvl=Math.max(1,Math.min(100,v|0||1));$('#eLv').value=pm.lvl;if(!touched)pm.moves=movesAt(pm.n,pm.lvl);paint()};
+  $('#eSp').onchange=()=>{pm.n=+$('#eSp').value;if(!touched)pm.moves=movesAt(pm.n,pm.lvl);paint()};
+  $('#eLv').onchange=()=>setLv(+$('#eLv').value);
+  $('#eUp').onclick=()=>setLv(pm.lvl+1); $('#eDn').onclick=()=>setLv(pm.lvl-1);
+  $('#eFill').onclick=()=>{pm.moves=movesAt(pm.n,pm.lvl);touched=true;paint()};
+  $('#eSave').onclick=()=>{
+    pm.nick=$('#eNick').value.trim(); pm.loc=$('#eLoc').value; pm.party=$('#eParty').checked; setLv(+$('#eLv').value);
+    pm.moves=[...new Set(pm.moves.filter(Boolean))].slice(0,4);
+    if(pm.party&&!existing?.party&&S.mons.filter(m=>m.party&&m.src!=='save'&&m.id!==pm.id).length>=6){alert('Your party already has 6 Pokémon. Untick one of them first, or leave this one in the box.');return}
+    const i=S.mons.findIndex(m=>m.id===pm.id); if(i>=0)S.mons[i]=pm; else S.mons.push(pm);
+    S.caught[NAME(pm.n)]=true; save();
+    toast(`${pm.nick||NAME(pm.n)} saved.`); back?back():closeSheet();
+  };
+  if(existing)$('#eDel').onclick=()=>{if(confirm(`Delete ${existing.nick||NAME(existing.n)} from your log? It stays marked as caught in the Pokédex.`)){S.mons=S.mons.filter(m=>m.id!==existing.id);save();back?back():closeSheet()}};
+  paint();
+}
+
+/* ============================================================
+   SAVE FILE IMPORT — reads a Pokémon Yellow .sav (e.g. from Delta)
+   Offsets are for English/international Red, Blue and Yellow saves.
+   Import only ever ADDS checkmarks; it never unticks anything.
+   ============================================================ */
+const G1CH={0x7F:' ',0xE0:"'",0xE1:'PK',0xE2:'MN',0xE3:'-',0xE6:'?',0xE7:'!',0xE8:'.',0xEF:'♂',0xF4:',',0xF5:'♀',0x9A:'(',0x9B:')',0x9C:':',0x9D:';',0xBA:'é'};
+function g1text(b,o,len=11){let t='';for(let i=0;i<len;i++){const c=b[o+i];if(c===0x50)break;
+  t+=c>=0x80&&c<=0x99?String.fromCharCode(65+c-0x80):c>=0xA0&&c<=0xB9?String.fromCharCode(97+c-0xA0):c>=0xF6?String(c-0xF6):(G1CH[c]||'')}return t.trim()}
+const nrm=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function parseSave(buf){
+  const b=new Uint8Array(buf);
+  if(b.length<0x8000)throw new Error('This file is too small to be a Game Boy save. In Delta, make sure you exported the save file, not a save state.');
+  let sum=0;for(let i=0x2598;i<0x3523;i++)sum=(sum+b[i])&0xFF;
+  const warn=[];
+  if(((~sum)&0xFF)!==b[0x3523])warn.push('The save checksum does not match, so some data may be wrong. Save in-game again and re-export.');
+  const flag=(o,n)=>(b[o+(n>>3)]>>(n&7))&1;
+  const bcd=x=>(x>>4)*10+(x&15);
+  const out={trainer:g1text(b,0x2598),yellow:b[0x271C]!==0,owned:[],seen:[],mons:[],items:new Set(),events:new Set(),badges:b[0x2602],
+    money:bcd(b[0x25F3])*10000+bcd(b[0x25F4])*100+bcd(b[0x25F5]),warn};
+  for(let n=1;n<=151;n++){if(flag(0x25A3,n-1))out.owned.push(n);if(flag(0x25B6,n-1))out.seen.push(n)}
+  const readItems=(o,max)=>{const c=Math.min(b[o],max);for(let i=0;i<c;i++){const id=b[o+1+i*2];
+    if(id>=0xC9)out.items.add(nrm(`TM${String(id-0xC8).padStart(2,'0')}`));else if(id>=0xC4)out.items.add(nrm(`HM${String(id-0xC3).padStart(2,'0')}`));else if(D.ITEMS[id-1])out.items.add(nrm(D.ITEMS[id-1]))}};
+  readItems(0x25C9,20); readItems(0x27E6,50);
+  for(const [k,v] of Object.entries(D.EVENTS))if(flag(0x29F3,v))out.events.add(k);
+  const mon=(o,level,nick,where,party)=>{const n=D.INT2DEX[b[o]];if(!n)return;
+    const moves=[b[o+8],b[o+9],b[o+10],b[o+11]].filter(m=>m>0&&m<=D.MOVES.length);
+    const m={n,lvl:Math.max(1,Math.min(100,level)),moves,nick:nrm(nick)===nrm(NAME(n))?'':nick,where,party,src:'save'};
+    if(party){m.hp=[b[o+1]<<8|b[o+2],b[o+34]<<8|b[o+35]]}
+    out.mons.push(m)};
+  // Party: count, species list, 6×44-byte mons, 6 OT names, 6 nicknames
+  const P=0x2F2C,pc=Math.min(b[P],6);
+  for(let i=0;i<pc;i++)mon(P+8+i*44,b[P+8+i*44+33],g1text(b,P+8+264+66+i*11),'Party',true);
+  // Boxes: 12 × (count, species list, 20×33-byte mons, 20 OT names, 20 nicknames)
+  const cur=b[0x284C]&0x7F, init=(b[0x284C]&0x80)!==0;
+  for(let x=0;x<12;x++){
+    const o=x===cur?0x30C0:!init?-1:x<6?0x4000+x*0x462:0x6000+(x-6)*0x462; if(o<0)continue;
+    const c=b[o]; if(c>20)continue;
+    for(let i=0;i<c;i++){const m=o+22+i*33;mon(m,b[m+3],g1text(b,o+22+660+220+i*11),`Box ${x+1}`,false)}
+  }
+  // Where you saved: current map, or for buildings the outdoor map you walked in from
+  const curMap=D.MAPS[b[0x260A]], lastMap=D.MAPS[b[0x2611]];
+  if(curMap){const loc=curMap[0]||(lastMap&&lastMap[0])||'';if(loc)out.here={loc,map:curMap[1]}}
+  if(b[0x2CF4])mon(0x2CF4+23,b[0x2CF4+23+3],g1text(b,0x2CF4+1),'Day Care',false);
+  return out;
+}
+// Which checklist entries a save proves you've done
+const ITEM_EVENT={"Oak's Parcel":'GOT_OAKS_PARCEL','Pokédex':'GOT_POKEDEX','Town Map':'GOT_TOWN_MAP','Old Amber':'GOT_OLD_AMBER','Bicycle':'GOT_BICYCLE',
+  'Bike Voucher':'GOT_BIKE_VOUCHER','Poké Flute':'GOT_POKE_FLUTE','Master Ball':'GOT_MASTER_BALL','Coin Case':'GOT_COIN_CASE','Itemfinder':'GOT_ITEMFINDER',
+  'Exp. All':'GOT_EXP_ALL','S.S. Ticket':'GOT_SS_TICKET','Gold Teeth':'GAVE_GOLD_TEETH','Lift Key':'ROCKET_DROPPED_LIFT_KEY'};
+const BATTLE_EVENT={'Rival (early)':'BEAT_ROUTE22_RIVAL_1ST_BATTLE','Rival (Cerulean)':'BEAT_CERULEAN_RIVAL','Rival (Tower)':'BEAT_POKEMON_TOWER_RIVAL',
+  'Ghost Marowak':'BEAT_GHOST_MAROWAK','Rival (Silph Co.)':'BEAT_SILPH_CO_RIVAL','Silph Co. (Giovanni)':'BEAT_SILPH_CO_GIOVANNI',
+  'Rocket Hideout (Giovanni)':'BEAT_ROCKET_HIDEOUT_GIOVANNI','Lorelei':'BEAT_LORELEIS_ROOM_TRAINER_0','Bruno':'BEAT_BRUNOS_ROOM_TRAINER_0',
+  'Agatha':'BEAT_AGATHAS_ROOM_TRAINER_0','Lance':'BEAT_LANCES_ROOM_TRAINER_0','Champion':'BEAT_CHAMPION_RIVAL'};
+const BADGES=['Boulder Badge','Cascade Badge','Thunder Badge','Rainbow Badge','Soul Badge','Marsh Badge','Volcano Badge','Earth Badge'];
+function applySave(sv){
+  let dex=0,ticks=0;
+  sv.owned.forEach(n=>{if(!S.caught[NAME(n)]){S.caught[NAME(n)]=true;dex++}});
+  const tickIf=(k,c)=>{if(c&&!S.done[k]){S.done[k]=true;ticks++}};
+  LOCS.forEach(l=>{
+    l.i.forEach(n=>{const k=dk(l.id,'i',n);let hit=false;
+      const tm=n.match(/^(TM|HM)(\d\d)/);
+      if(tm)hit=sv.items.has(nrm(tm[0]))||sv.events.has(`GOT_${tm[0]}`);
+      else if(n==='Dome/Helix Fossil')hit=sv.events.has('GOT_DOME_FOSSIL')||sv.events.has('GOT_HELIX_FOSSIL');
+      else if(ITEM_EVENT[n])hit=sv.events.has(ITEM_EVENT[n])||sv.items.has(nrm(n));
+      else if(/Key|Scope|Rod|Case/.test(n))hit=sv.items.has(nrm(n));
+      else if(n==='Nugget'&&l.id==='r24')hit=sv.events.has('GOT_NUGGET');
+      tickIf(k,hit)});
+    l.b.forEach(n=>{const k=dk(l.id,'b',n);const bi=BADGES.indexOf(n);
+      tickIf(k,bi>=0?(sv.badges>>bi)&1:BATTLE_EVENT[n]&&sv.events.has(BATTLE_EVENT[n]))});
+  });
+  // Replace previously imported Pokémon with the fresh list; keep ones you logged by hand
+  S.mons=S.mons.filter(m=>m.src!=='save').concat(sv.mons.map((m,i)=>({...m,id:'sv'+i,loc:''})));
+  S.seen=Object.fromEntries(sv.seen.map(n=>[NAME(n),true]));
+  if(sv.here)S.here={...sv.here,at:Date.now()};
+  S.lastSave={at:Date.now(),trainer:sv.trainer,money:sv.money,mons:sv.mons.length,yellow:sv.yellow};
+  save();
+  return {dex,ticks};
+}
+function importSave(){
+  const inp=document.createElement('input'); inp.type='file';
+  inp.onchange=async()=>{const f=inp.files[0];if(!f)return;
+    try{const sv=parseSave(await f.arrayBuffer());const r=applySave(sv);
+      const msg=[`Synced ${sv.trainer?sv.trainer+'’s':'your'} save: ${sv.owned.length} caught, ${sv.mons.length} Pokémon`];
+      if(r.dex)msg.push(`${r.dex} new in the Pokédex`); if(r.ticks)msg.push(`${r.ticks} checklist items ticked`);
+      if(!sv.yellow)msg.push('(this looks like a Red/Blue save)');
+      if(sv.here)msg.push(`you're at ${byId[sv.here.loc].name}`);
+      toast(msg.join(' · ')+'.'); if(sv.warn.length)setTimeout(()=>alert(sv.warn.join('\n')),300);
+    }catch(e){alert(e.message||'That file could not be read as a Pokémon save.')}};
+  inp.click();
+}
+
+/* ============================================================
+   VERSUS — type matchups using Yellow's own Gen 1 type chart
+   ============================================================ */
+const TYPES=[...new Set(D.CHART.flatMap(r=>[r[0],r[1]]))];
+const EFFT={}; D.CHART.forEach(([a,d,m])=>{(EFFT[a]||={})[d]=m});
+const eff=(atk,defTypes)=>defTypes.reduce((x,t)=>x*((EFFT[atk]||{})[t]??1),1);
+let vsSel=null, vsCaughtOnly=false;
+const multTxt=m=>m===0?'×0':m===0.25?'×¼':m===0.5?'×½':`×${m}`;
+// A Pokémon's damaging moves it can learn (level-up + TM/HM), best first
+function attackPool(n,known){
+  const m=MON(n), ids=known&&known.length?known:[...new Set([...m.l1,...m.lv.map(x=>x[1]),...m.tm.map(k=>D.TM[k-1])])];
+  return ids.map(id=>{const [nm,ty,pw,ac]=MV(id);const stab=m.t.includes(ty);return {id,nm,ty,pw,ac,stab,score:pw>1?pw*(stab?1.5:1)*ac/100:0,
+      how:known&&known.length?'Knows it':m.l1.includes(id)?'Lv 1':m.lv.find(x=>x[1]===id)?`Lv ${m.lv.find(x=>x[1]===id)[0]}`:tmName(D.TM.indexOf(id)+1)}})
+    .filter(x=>x.score>0&&!/^(Explosion|Selfdestruct)$/.test(x.nm)).sort((a,b)=>b.score-a.score);
+}
+function drawVs(){
+  const el=document.getElementById('vsBody');
+  const team=S.mons.filter(m=>m.party).concat(S.mons.filter(m=>!m.party));
+  if(!vsSel)vsSel=team[0]?{n:team[0].n,id:team[0].id}:{n:25,id:null};
+  const n=vsSel.n, m=MON(n), pm=vsSel.id&&S.mons.find(x=>x.id===vsSel.id), types=m.t;
+  const title=pm?.nick||NAME(n);
+  // Defensive profile: every attacking type vs this Pokémon
+  const def=TYPES.map(t=>[t,eff(t,types)]);
+  const grp=(f)=>def.filter(([,x])=>f(x)).sort((a,b)=>b[1]-a[1]).map(([t,x])=>typeChip(t)+(x!==2&&x!==0.5&&x!==0?`<span class="mult">${multTxt(x)}</span>`:'')).join('')||'<small style="opacity:.6">None</small>';
+  const hitsHard=TYPES.filter(t=>types.some(a=>eff(a,[t])>=2));
+  // Left: Pokémon whose type hits this one ≥2×. Right: Pokémon this one's types hit ≥2×.
+  const pool=DEX.map((d,i)=>i+1).filter(k=>k!==n&&(!vsCaughtOnly||S.caught[NAME(k)]));
+  const weak={}, strong={};
+  pool.forEach(k=>{const kt=MON(k).t;
+    let best=null; kt.forEach(t=>{const x=eff(t,types);if(x>=2&&(!best||x>best[1]))best=[t,x]});
+    if(best)(weak[best[0]]||=[]).push([k,best[1]]);
+    let bo=null; types.forEach(t=>{const x=eff(t,kt);if(x>=2&&(!bo||x>bo[1]))bo=[t,x]});
+    if(bo){let key=kt[0],kx=0;kt.forEach(t=>{const x=Math.max(...types.map(a=>eff(a,[t])));if(x>kx){kx=x;key=t}});(strong[key]||=[]).push([k,bo[1],bo[0]])}});
+  const tile=([k,x])=>`<button data-n="${k}" class="${S.caught[NAME(k)]?'got':''}" aria-label="${NAME(k)}${x>=4?', 4 times':''}">${x>=4?'<i class="x4">×4</i>':''}${img(k,'spr sm')}<span>${NAME(k)}</span></button>`;
+  const col=(o,labelFn)=>{const ks=Object.keys(o).sort((a,b)=>Math.max(...o[b].map(v=>v[1]))-Math.max(...o[a].map(v=>v[1]))||o[b].length-o[a].length);
+    return ks.length?ks.map(t=>`<h4>${labelFn(t,o[t])}</h4><div class="vs-grid">${o[t].sort((a,b)=>b[1]-a[1]||a[0]-b[0]).map(tile).join('')}</div>`).join(''):'<p class="empty">None'+(vsCaughtOnly?' caught yet':'')+'.</p>'};
+  // Best moves against it: strongest moves of each super-effective type, and which of your Pokémon know one
+  const seTypes=def.filter(([,x])=>x>=2).sort((a,b)=>b[1]-a[1]);
+  const topOf=t=>D.MOVES.map((v,i)=>[i+1,...v]).filter(v=>v[2]===t&&v[3]>1).sort((a,b)=>b[3]*b[4]-a[3]*a[4]).slice(0,3).map(v=>v[1]).join(', ');
+  const users=[];S.mons.forEach(o=>o.moves.forEach(id=>{const [nm,ty,pw]=MV(id);const x=eff(ty,types);if(x>=2&&pw>1&&o.id!==vsSel.id)users.push(`<b>${esc(o.nick||NAME(o.n))}</b> — ${nm} <span class="mult">${multTxt(x)}</span>`)}));
+  const own=attackPool(n,pm?.moves).slice(0,6);
+  el.innerHTML=`
+    <div class="vs-pick"><select id="vsPick" aria-label="Choose a Pokémon">${DEX.map((d,i)=>`<option value="${i+1}">#${String(i+1).padStart(3,'0')} ${d}</option>`).join('')}</select></div>
+    ${team.length?`<div class="vs-team" aria-label="Your Pokémon">${team.map(o=>`<button data-id="${o.id}" aria-pressed="${o.id===vsSel.id}">${img(o.n,'spr sm')}<span>${esc(o.nick||NAME(o.n))}</span></button>`).join('')}</div>`:''}
+    <div class="vs-hero"><div class="screen">${img(n,'spr big')}</div><b>${esc(title)}</b>
+      <div class="sub">${pm?`${NAME(n)} · Lv ${pm.lvl} · your Pokémon`:`#${String(n).padStart(3,'0')} · ${m.de[0]} Pokémon`}</div>
+      <div>${types.map(typeChip).join('')}</div><button class="link" id="vsDex">Pokédex entry</button></div>
+    <div class="stat">
+      <div class="tline"><span>Weak to</span>${grp(x=>x>=2)}</div>
+      <div class="tline"><span>Resists</span>${grp(x=>x>0&&x<1)}</div>
+      <div class="tline"><span>Immune to</span>${grp(x=>x===0)}</div>
+      <div class="tline"><span>Its type hits</span>${hitsHard.map(typeChip).join('')||'<small style="opacity:.6">Nothing super-effectively</small>'}</div>
+    </div>
+    <div class="stat"><h3><span>Best moves against ${esc(title)}</span></h3>
+      ${seTypes.length?seTypes.map(([t,x])=>`<div class="tline"><span>${typeChip(t)}<span class="mult">${multTxt(x)}</span></span><small>${topOf(t)}</small></div>`).join(''):'<p class="note">No type is super effective against it. Use your strongest moves.</p>'}
+      ${users.length?`<p class="note" style="margin-top:8px"><b>Your Pokémon ready for it:</b><br>${users.slice(0,6).join('<br>')}</p>`:''}
+    </div>
+    <div class="stat"><h3><span>${pm?`${esc(title)}’s moves, best first`:`Best attacks ${esc(title)} can learn`}</span></h3>
+      ${own.length?`<div class="bm">${own.map(a=>`<span><b>${a.nm}</b> ${a.stab?'<small>· same type ×1.5</small>':''}<br><small>${a.how} · ${TYPES.some(t=>eff(a.ty,[t])>=2)?`×2 vs ${TYPES.filter(t=>eff(a.ty,[t])>=2).join(', ')}`:'no type takes ×2'}</small></span>${typeChip(a.ty)}<span>${a.pw}</span>`).join('')}</div>`:'<p class="note">No damaging moves.</p>'}
+    </div>
+    <div class="dexbar"><button class="chip" id="vsAll" aria-pressed="${!vsCaughtOnly}">All Pokémon</button><button class="chip" id="vsGot" aria-pressed="${vsCaughtOnly}">Only ones I've caught</button></div>
+    <div class="vs-cols">
+      <div class="vs-col weak"><h3>Weak to</h3>${col(weak,(t,arr)=>`${typeChip(t)}<span class="mult">${multTxt(Math.max(...arr.map(v=>v[1])))} · ${arr.length}</span>`)}</div>
+      <div class="vs-col strong"><h3>Strong against</h3>${col(strong,(t,arr)=>`${typeChip(t)}<span class="mult">${arr.length}</span>`)}</div>
+    </div>
+    <p class="note" style="margin-top:10px">Based on Pokémon Yellow's own type chart, including its quirks: Psychic is immune to Ghost moves, Bug and Poison are super effective against each other, and Ice is neutral against Fire. Tap any Pokémon to see its matchups.</p>`;
+  const $=q=>el.querySelector(q);
+  $('#vsPick').value=n;
+  $('#vsPick').onchange=()=>{vsSel={n:+$('#vsPick').value,id:null};drawVs();el.scrollTop=0};
+  el.querySelectorAll('.vs-team button').forEach(x=>x.onclick=()=>{const o=S.mons.find(y=>y.id===x.dataset.id);vsSel={n:o.n,id:o.id};drawVs()});
+  el.querySelectorAll('.vs-grid button').forEach(x=>x.onclick=()=>{vsSel={n:+x.dataset.n,id:null};drawVs();el.scrollTop=0});
+  $('#vsDex').onclick=()=>openDex(n);
+  $('#vsAll').onclick=()=>{vsCaughtOnly=false;drawVs()}; $('#vsGot').onclick=()=>{vsCaughtOnly=true;drawVs()};
+}
+
+/* ============================================================
+   PROGRESS VIEW
+   ============================================================ */
+// Progress cards open a list: what you have, then what's left, with where to find each
+function openChecklist(kind){
+  const T={badges:'Badges',items:'Items, TMs and key items',battles:'Key battles'}[kind];
+  const rows=[];
+  LOCS.forEach(l=>{
+    const arr=kind==='items'?l.i:l.b.filter(n=>kind==='battles'||/Badge$/.test(n));
+    arr.forEach(n=>rows.push({l,n,k:dk(l.id,kind==='items'?'i':'b',n)}));
+  });
+  const b=sheetOpen(T); b.scrollTop=0;
+  const got=rows.filter(r=>S.done[r.k]), need=rows.filter(r=>!S.done[r.k]);
+  const sec=(title,arr)=>{const h=document.createElement('h3');h.textContent=`${title} (${arr.length})`;b.appendChild(h);
+    if(!arr.length){const p=document.createElement('p');p.className='empty';p.textContent=title==='Acquired'?'None yet.':'All done!';b.appendChild(p);return}
+    arr.forEach(r=>{const row=tickRow(r.n,!!S.done[r.k],()=>{S.done[r.k]=!S.done[r.k];save();openChecklist(kind)},
+      `<br><button class="link loc">${r.l.name}</button>`);
+      row.querySelector('.loc').onclick=()=>{tab('map');focusLoc(r.l.id);openLoc(r.l.id)};b.appendChild(row)})};
+  sec('Acquired',got); sec('Still to get',need);
+}
+
+function drawProg(){
+  const t=totals(), el=document.getElementById('prog');
+  const stat=(title,a,b,k)=>`<button class="stat" data-k="${k}" aria-label="${title}: ${a} of ${b}. Show list"><h3><span>${title}</span><span>${a} / ${b}</span></h3><div class="bar"><i style="width:${b?a/b*100:0}%"></i></div></button>`;
+  const ls=S.lastSave;
+  el.innerHTML = `<div class="stat"><h3><span>Game save</span></h3><p class="note">${ls?`Last synced ${new Date(ls.at).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})} · ${esc(ls.trainer)} · ₽${ls.money.toLocaleString()} · ${ls.mons} Pokémon`:'Pick your Pokémon Yellow save file to fill in your Pokédex, party, boxes, badges and key items automatically.'}</p>
+   <div class="btns"><button class="bigbtn" id="sync">Import save file</button></div></div>`+stat('Pokédex',t.dex,DEX.length,'dex')+stat('Badges',t.badges,8,'badges')+stat('Items, TMs and key items',t.it,t.itT,'items')+stat('Key battles',t.bt,t.btT,'battles')+
+  `<div class="stat"><h3><span>Logged Pokémon</span><span>${S.mons.length}${S.mons.length?` · party ${S.mons.filter(m=>m.party).length}`:''}</span></h3>
+   <p class="note">Highest level: ${S.mons.length?Math.max(...S.mons.map(m=>m.lvl)):'—'}</p></div>
+   <div class="stat"><h3><span>Sprites for offline</span><span id="sprN"></span></h3><p class="note">Sprites load from the internet the first time you see them, then stay on this phone. Download all 151 now so the Pokédex works fully offline.</p>
+   <div class="btns"><button id="sprGet">Download all sprites</button></div></div>`+
+  `<div class="stat"><h3><span>Backup</span></h3><p class="note">Progress is saved on this device. Copy a backup code before clearing Safari data or switching phones.</p>
+   <div class="btns"><button id="exp">Copy backup code</button><button id="imp">Restore from code</button><button id="rst">Reset all progress</button></div></div>
+   <div class="stat"><h3><span>About the data</span></h3><p class="note">Encounter tables and item lists are a best-effort guide and may have gaps or mistakes. Everything lives in the DATA block at the top of index.html, so you can correct or extend it. Pokédex stats, types, move lists and TM/HM compatibility come from Pokémon Yellow's own data tables (dex-data.js). Sprites are the Game Boy Yellow sprites from the PokeAPI sprites project.</p></div>`;
+  document.getElementById('sync').onclick=importSave;
+  el.querySelectorAll('button.stat').forEach(x=>x.onclick=()=>x.dataset.k==='dex'?(dexFilter='got',tab('dex')):openChecklist(x.dataset.k));
+  spriteCount().then(n=>{const o=document.getElementById('sprN');if(o&&n!=null)o.textContent=`${n} / 151`});
+  document.getElementById('sprGet').onclick=async e=>{
+    const btn=e.currentTarget,out=document.getElementById('sprN');btn.disabled=true;
+    try{const c=await caches.open(SPR_CACHE);let ok=0,fail=0;
+      for(let i=1;i<=151;i+=10){await Promise.all(Array.from({length:Math.min(10,152-i)},(_,j)=>i+j).map(async n=>{
+        if(await c.match(SPRITE(n),{ignoreVary:true,ignoreSearch:true})){ok++;return}
+        try{const r=await fetch(SPRITE(n),{mode:'cors'});if(!r.ok)throw 0;await c.put(SPRITE(n),new Response(await r.blob(),{headers:{'Content-Type':'image/png'}}));ok++}catch(x){fail++}}));
+        out.textContent=`${ok} / 151`}
+      toast(fail?`${fail} sprites couldn't download. Check your connection and try again.`:'All 151 sprites saved for offline use.')}
+    catch(x){toast('This browser blocked offline storage. Sprites will still show when online.')}
+    btn.disabled=false};
+  document.getElementById('exp').onclick=async()=>{const code=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+    try{await navigator.clipboard.writeText(code);alert('Backup code copied.')}catch(e){prompt('Copy this backup code:',code)}};
+  document.getElementById('imp').onclick=()=>{const c=prompt('Paste a backup code:');if(!c)return;
+    try{const v=JSON.parse(decodeURIComponent(escape(atob(c.trim()))));if(!v.caught||!v.done)throw 0;v.mons ||= [];S=v;save();alert('Progress restored.')}catch(e){alert('That code could not be read. Check it was copied in full.')}};
+  document.getElementById('rst').onclick=()=>{if(confirm('Clear every checkmark? This cannot be undone.')){S={caught:{},done:{},mons:[]};save()}};
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+const q=document.getElementById('q'), res=document.getElementById('results');
+q.addEventListener('input',()=>{
+  const s=q.value.trim().toLowerCase(); res.innerHTML='';
+  if(s.length<2){res.classList.remove('on');return}
+  const out=[];
+  LOCS.forEach(l=>{if(l.name.toLowerCase().includes(s))out.push([l.name,'Place',()=>go(l.id)]);
+    l.i.forEach(n=>{if(n.toLowerCase().includes(s))out.push([n,l.name,()=>go(l.id)])});
+    l.b.forEach(n=>{if(n.toLowerCase().includes(s))out.push([n,l.name,()=>go(l.id)])})});
+  DEX.forEach((n,i)=>{if(n.toLowerCase().includes(s))out.push([n,WHERE[n].length?WHERE[n].map(id=>byId[id].name).join(', '):'Evolve or trade',()=>{dexFilter='all';tab('dex');document.getElementById('dex-'+i)?.scrollIntoView({block:'center'});openDex(i+1)}])});
+  S.mons.forEach(pm=>{if(pm.nick&&pm.nick.toLowerCase().includes(s))out.push([esc(pm.nick),`${NAME(pm.n)} · Lv ${pm.lvl}`,()=>{tab('team');pm.src==='save'?openDex(pm.n):openEdit(pm.id,pm.n,null)}])});
+  out.slice(0,30).forEach(([a,b,f])=>{const bt=document.createElement('button');bt.innerHTML=`${a} <span>${b}</span>`;bt.onclick=()=>{res.classList.remove('on');q.value='';q.blur();f()};res.appendChild(bt)});
+  if(!out.length)res.innerHTML='<button disabled>No matches. Try a shorter name.</button>';
+  res.classList.add('on');
+});
+function go(id){tab('map');focusLoc(id);openLoc(id)}
+
+/* ============================================================
+   TABS + REFRESH
+   ============================================================ */
+function tab(v){document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.v===v)));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  closeSheet(); if(v==='dex')drawDex(); if(v==='team')drawTeam(); if(v==='vs')drawVs(); if(v==='prog')drawProg()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.v));
+function refresh(){document.getElementById('meter').textContent=Math.round(totals().all*100)+'%';drawMap();
+  const on=v=>document.getElementById('v-'+v).classList.contains('on');
+  if(on('prog'))drawProg(); if(on('team'))drawTeam(); if(on('vs'))drawVs();
+  if(on('dex')){const sc=document.getElementById('dexList'),y=sc.scrollTop;drawDex();sc.scrollTop=y}}
+refresh();
+
+/* Offline support (needs HTTPS or localhost) */
+if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
+</body>
+</html>
