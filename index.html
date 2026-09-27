@@ -283,6 +283,7 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
 
 <script src="dex-data.js"></script>
 <script src="maps-data.js"></script>
+<script src="maps-img.js"></script>
 <script>
 /* ============================================================
    DATA — edit freely. Encounter tables are best-effort; verify
@@ -549,12 +550,17 @@ function lmCheck(name,m){const l=byId[m.loc];if(!l)return {};
 const LMCOL={'.':'#E4E8C8',g:'#A7C674',w:'#79ACD9',t:'#CBD9A2',k:'#CBD9A2',r:'#A8906B',b:'#C9B79C',f:'#E4E8C8',x:'#5B6E48',v:'#E4E8C8',l:'#E4E8C8',e:'#E4E8C8'};
 const lmSpr={};
 function lmSprite(n,redraw){if(!lmSpr[n]){const im=new Image();im.crossOrigin='anonymous';im.onload=redraw;im.src=SPRITE(n);lmSpr[n]=im}return lmSpr[n]}
+const lmPics={};
+function lmPic(m,redraw){if(!lmPics[m.i]){const im=new Image();im.onload=redraw;im.src=(typeof MAPIMG!=='undefined'&&MAPIMG[m.i])||'';lmPics[m.i]=im}return lmPics[m.i]}
 function lmDraw(cv,m,cs){
   const dpr=window.devicePixelRatio||1, W=m.w*cs, H=m.h*cs;
   cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
   const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.imageSmoothingEnabled=false;
   const g=lmCells(m), at=(x,y)=>x<0||y<0||x>=m.w||y>=m.h?'':g[y*m.w+x];
-  for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){const ch=g[y*m.w+x],X=x*cs,Y=y*cs;
+  // the real map picture (maps-img.js); fall back to the simple plan until it has loaded
+  const pic=lmPic(m,()=>lmLast&&lmLast.cv===cv&&lmDraw(cv,m,cs));
+  if(pic.complete&&pic.naturalWidth)c.drawImage(pic,0,0,W,H);
+  else for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){const ch=g[y*m.w+x],X=x*cs,Y=y*cs;
     c.fillStyle=LMCOL[ch]||'#E4E8C8';c.fillRect(X,Y,cs,cs);
     if(ch==='g'){c.strokeStyle='#4E7A34';c.lineWidth=Math.max(1,cs/12);c.beginPath();
       for(const [a,b] of [[.22,.62],[.55,.38]]){c.moveTo(X+cs*a,Y+cs*(b+.22));c.lineTo(X+cs*(a+.1),Y+cs*b);c.lineTo(X+cs*(a+.2),Y+cs*(b+.22))}c.stroke()}
@@ -628,7 +634,7 @@ function lmRender(){
     <div class="lm-view"><canvas aria-label="Map of ${esc(m.n)}"></canvas></div>
     <div class="lm-info" id="lmInfo">Tap a door, item or trainer on the map.</div>
     <div class="lm-bar"><span class="lm-cn">${cn}</span><span class="lm-ctl"><button class="chip" id="lmKey" aria-pressed="${!!st.key}">Key</button><button class="chip" id="lmOut" aria-label="Zoom out">−</button><button class="chip" id="lmIn" aria-label="Zoom in">+</button></span></div>
-    ${st.key?`<div class="lm-key"><span><i style="background:#A7C674"></i>Tall grass</span><span><i style="background:#79ACD9"></i>Water</span><span><i style="background:#3E7D3A;border-radius:50%"></i>Tree</span><span><i style="background:#7DB35A;border-radius:50%;outline:2px dashed #F2C230"></i>Cut tree</span><span><i style="background:#E4E8C8;border-bottom:4px solid #56703E"></i>Ledge</span><span><i style="background:#1E2D1B"></i>Door / stairs</span><span><i style="background:linear-gradient(#D8392B 50%,#fff 50%);border-radius:50%"></i>Item</span><span><i style="border:2px dashed #B48A00;border-radius:50%"></i>Hidden item</span><span><i style="background:#D8392B;border-radius:50%"></i>Trainer</span><span><i style="background:#8C9098;border-radius:50%"></i>Done / person</span></div>`:''}`;
+    ${st.key?`<div class="lm-key"><span><i style="background:#1E2D1B"></i>Door / stairs</span><span><i style="background:linear-gradient(#D8392B 50%,#fff 50%);border-radius:50%"></i>Item</span><span><i style="border:2px dashed #B48A00;border-radius:50%"></i>Hidden item</span><span><i style="background:#D8392B;border-radius:50%"></i>Trainer</span><span><i style="background:#8C9098;border-radius:50%"></i>Done / person</span></div>`:''}`;
   const view=box.querySelector('.lm-view'), cv=box.querySelector('canvas');
   const tabs=box.querySelector('.lm-tabs'), on=tabs&&tabs.querySelector('[aria-pressed=true]');
   if(on)tabs.scrollLeft=on.offsetLeft-tabs.offsetLeft-(tabs.clientWidth-on.offsetWidth)/2;
