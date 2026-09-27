@@ -84,7 +84,7 @@ def const_values(src):
         elif t[0] == 'const_next': v = int(t[1].replace('$', '0x'), 0)
     return out
 EVC = const_values(rd('constants/event_constants.asm'))
-EVENTS = {k[6:]: v for k, v in EVC.items() if re.match(r'EVENT_(GOT_|BEAT_|GAVE_|ROCKET_DROPPED)', k)}
+EVENTS = {k[6:]: v for k, v in EVC.items() if k.startswith('EVENT_') and not re.fullmatch(r'EVENT_[0-9A-F]{3}', k)}
 
 # ---- Type chart exactly as Yellow uses it: [attacking type, defending type, multiplier] ----
 EFF = {'SUPER_EFFECTIVE': 2, 'NOT_VERY_EFFECTIVE': 0.5, 'NO_EFFECT': 0}

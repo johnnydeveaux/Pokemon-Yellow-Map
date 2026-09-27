@@ -124,7 +124,7 @@ button.stat h3 span:last-child::after{content:' ›';opacity:.45}
 .note{font-size:.85rem;line-height:1.5;max-width:65ch}
 
 nav{display:flex;background:var(--ink);padding:6px 6px calc(6px + var(--safe-b))}
-nav button{flex:1;border:0;background:none;color:var(--cart);padding:10px 2px;font-weight:800;font-size:.8rem;border-radius:10px;min-width:0}
+nav button{flex:1;border:0;background:none;color:var(--cart);padding:10px 2px;font-weight:800;font-size:.72rem;border-radius:10px;min-width:0;letter-spacing:-.01em}
 nav button[aria-selected=true]{background:var(--cart);color:var(--ink)}
 
 /* Sprites + detailed dex */
@@ -212,6 +212,14 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
 .bm{display:grid;grid-template-columns:1fr auto auto;gap:4px 8px;align-items:center;font-size:.84rem}
 .bm b{font-weight:800}
 .bm small{opacity:.7}
+
+/* Journal */
+.jnext{background:var(--paper);border-radius:14px;padding:14px;border:3px solid var(--ink)}
+.jnext .jkicker{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.65}
+.jnext h2{margin:4px 0 8px;font-size:1.15rem}
+.jnext p{margin:0 0 10px;line-height:1.45;font-size:.92rem}
+.row.jcur{outline:3px solid var(--ink)}
+.jnext .tline>span:first-child{min-width:9.2em}
 @media (prefers-reduced-motion:reduce){.sheet{transition:none}}
 </style>
 </head>
@@ -239,6 +247,7 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
   <section class="view" id="v-dex"><div class="scroll" id="dexList"></div></section>
   <section class="view" id="v-team"><div class="scroll" id="teamList"></div></section>
   <section class="view" id="v-vs"><div class="scroll" id="vsBody"></div></section>
+  <section class="view" id="v-journal"><div class="scroll" id="jBody"></div></section>
   <section class="view" id="v-prog"><div class="scroll" id="prog"></div></section>
 </main>
 
@@ -247,6 +256,7 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
   <button role="tab" aria-selected="false" data-v="dex">Pokédex</button>
   <button role="tab" aria-selected="false" data-v="team">Team</button>
   <button role="tab" aria-selected="false" data-v="vs">Versus</button>
+  <button role="tab" aria-selected="false" data-v="journal">Journal</button>
   <button role="tab" aria-selected="false" data-v="prog">Progress</button>
 </nav>
 
@@ -758,6 +768,7 @@ function applySave(sv){
   S.mons=S.mons.filter(m=>m.src!=='save').concat(sv.mons.map((m,i)=>({...m,id:'sv'+i,loc:''})));
   S.seen=Object.fromEntries(sv.seen.map(n=>[NAME(n),true]));
   if(sv.here)S.here={...sv.here,at:Date.now()};
+  S.prog={ev:[...sv.events],items:[...sv.items],badges:sv.badges};
   S.lastSave={at:Date.now(),trainer:sv.trainer,money:sv.money,mons:sv.mons.length,yellow:sv.yellow};
   save();
   return {dex,ticks};
@@ -851,6 +862,160 @@ function drawVs(){
 }
 
 /* ============================================================
+   JOURNAL — story guide. Steps tick themselves from your save
+   (the game's own story flags), or you can tick them by hand.
+   Conditions: 'e:FLAG' story flag · 'b:n' badge n (0 = Boulder)
+               'i:Item' item in bag/PC · 'd:n' Pokédex no. caught
+   A step also counts as done once any LATER main step is done.
+   ============================================================ */
+const GYM=(t)=>({gym:t});
+const STORY=[
+ {id:'start',ch:'Pallet Town',t:'Get your first Pokémon',at:'pallet',c:['e:GOT_STARTER'],
+  x:'Try to leave Pallet Town through the tall grass to the north. Professor Oak stops you and takes you to his lab, where he gives you Pikachu. Your rival grabs the Eevee.',lv:'—'},
+ {id:'lab',ch:'Pallet Town',t:'First battle with your rival',at:'pallet',c:['e:BATTLED_RIVAL_IN_OAKS_LAB'],
+  x:'Your rival challenges you before you leave the lab. Win or lose, the story moves on. From here on, Pikachu follows you around. Keep it happy: don\'t let it faint too often.',lv:'5'},
+ {id:'parcel',ch:'Pallet Town',t:'Pick up Oak\'s Parcel',at:'viridian',c:['e:GOT_OAKS_PARCEL'],
+  x:'Walk north along Route 1 to Viridian City and step into the Poké Mart. The clerk asks you to take a package back to Professor Oak.',lv:'5–7'},
+ {id:'dex',ch:'Pallet Town',t:'Deliver the parcel and get the Pokédex',at:'pallet',c:['e:GOT_POKEDEX','e:OAK_GOT_PARCEL'],
+  x:'Take the parcel back to Oak\'s lab. He gives you the Pokédex. Next door, your rival\'s sister hands you the Town Map.',lv:'6–8'},
+ {id:'forest',ch:'Boulder Badge',t:'Cross Viridian Forest to Pewter City',at:'vforest',c:[],
+  x:'Head north from Viridian City on Route 2 and through Viridian Forest. It\'s a good place to catch a Caterpie or Pidgey, and Bug Catchers give easy experience.',lv:'8–10'},
+ {id:'brock',ch:'Boulder Badge',t:'Beat Brock at the Pewter Gym',at:'pewter',c:['b:0','e:BEAT_BROCK'],gym:['Rock','Ground'],
+  x:'Brock uses Rock and Ground types, and Pikachu\'s Electric moves won\'t touch them. Catch a Nidoran♂ on Route 22: it learns Double Kick at level 12. A Butterfree from Viridian Forest (Confusion) also works well.',lv:'12–14'},
+ {id:'mtmoon',ch:'Cascade Badge',t:'Get through Mt. Moon',at:'mtmoon',c:['e:BEAT_MT_MOON_3_JESSIE_JAMES','e:GOT_DOME_FOSSIL','e:GOT_HELIX_FOSSIL'],
+  x:'Follow Route 3 east to Mt. Moon. Deep inside, Jessie & James try to stop you. Beat them and a Super Nerd lets you choose one fossil: Dome (Kabuto) or Helix (Omanyte). Clefairy live in here too.',lv:'14–16'},
+ {id:'rival2',ch:'Cascade Badge',t:'Battle your rival in Cerulean City',at:'cerulean',c:['e:BEAT_CERULEAN_RIVAL'],
+  x:'Your rival is waiting at the north edge of Cerulean City, by the bridge.',lv:'17–18'},
+ {id:'misty',ch:'Cascade Badge',t:'Beat Misty at the Cerulean Gym',at:'cerulean',c:['b:1','e:BEAT_MISTY'],gym:['Water'],
+  x:'Misty uses Water types, which is Pikachu\'s moment. Thundershock or Thunderbolt and a couple of Potions should do it. Her Starmie is fast, so heal early.',lv:'20–22'},
+ {id:'bill',ch:'Cascade Badge',t:'Meet Bill and get the S.S. Ticket',at:'r25',c:['e:GOT_SS_TICKET'],
+  x:'Cross Nugget Bridge (Route 24), beating five trainers and a Rocket for a Nugget, then go east on Route 25 to Bill\'s cottage. Help him with his experiment and he gives you a ticket for the S.S. Anne.',lv:'20–23'},
+ {id:'thief',ch:'Thunder Badge',t:'Stop the Rocket thief in Cerulean',at:'cerulean',c:['e:BEAT_CERULEAN_ROCKET_THIEF'],
+  x:'A house in Cerulean was robbed. Go through it to find the Rocket behind it. Beat him to get TM28 Dig back.',lv:'22'},
+ {id:'ssanne',ch:'Thunder Badge',t:'Board the S.S. Anne and get Cut',at:'ssanne',c:['e:GOT_HM01'],
+  x:'Go south: Route 5, the Underground Path, then Route 6 to Vermilion City. Show your ticket at the harbour, beat your rival on board, and help the seasick captain. He gives you HM01 Cut. Teach it to someone, since you need it for the gym.',lv:'22–25'},
+ {id:'surge',ch:'Thunder Badge',t:'Beat Lt. Surge at the Vermilion Gym',at:'vermilion',c:['b:2','e:BEAT_LT_SURGE'],gym:['Electric'],
+  x:'Cut the small tree blocking the gym. Inside, search the trash cans for two hidden switches to open the door. Surge uses Electric types, so bring a Ground type. Diglett\'s Cave is just east of Vermilion.',lv:'25–28'},
+ {id:'tunnel',ch:'Rainbow Badge',t:'Pass Rock Tunnel to Lavender Town',at:'rtunnel',c:[],
+  x:'Cut the small tree east of Cerulean City, then take Route 9 east and Route 10 south into Rock Tunnel. It\'s pitch dark. Flash (HM05, from Oak\'s aide on Route 2 once you\'ve caught 10 kinds of Pokémon) makes it much easier. You come out near Lavender Town.',lv:'25–28'},
+ {id:'celadon',ch:'Rainbow Badge',t:'Reach Celadon City',at:'celadon',c:['e:FOUND_ROCKET_HIDEOUT','e:ENTERED_ROCKET_HIDEOUT'],
+  x:'From Lavender, go west on Route 8 and use the underground path to Route 7 and Celadon City. Buy drinks on the Department Store roof: you\'ll need one later. At the Game Corner, a Rocket guards a poster. Beat him and check the poster to find a hidden stairway.',lv:'28–30'},
+ {id:'erika',ch:'Rainbow Badge',t:'Beat Erika at the Celadon Gym',at:'celadon',c:['b:3','e:BEAT_ERIKA'],gym:['Grass'],
+  x:'Cut the tree in front of the gym. Erika uses Grass types, which Fire, Ice, Flying, Poison and Bug moves all hit hard. Watch out for sleep and poison powders.',lv:'30–33'},
+ {id:'hideout',ch:'Marsh Badge',t:'Clear the Rocket Hideout',at:'celadon',c:['e:BEAT_ROCKET_HIDEOUT_GIOVANNI'],
+  x:'Down the stairs under the Game Corner. Beat the Rocket carrying the Lift Key, take the elevator down, get past Jessie & James and face Giovanni. He leaves behind the Silph Scope.',lv:'30–34'},
+ {id:'tower',ch:'Marsh Badge',t:'Rescue Mr. Fuji from Pokémon Tower',at:'tower',c:['e:RESCUED_MR_FUJI','e:GOT_POKE_FLUTE'],
+  x:'Back in Lavender, climb Pokémon Tower. Your rival waits on the second floor. With the Silph Scope you can see the ghosts, including a restless Marowak. Beat Jessie & James at the top to save Mr. Fuji. He gives you the Poké Flute at his house.',lv:'32–36'},
+ {id:'snorlax',ch:'Soul Badge',t:'Wake a Snorlax and head to Fuchsia City',at:'r12',c:['e:BEAT_ROUTE12_SNORLAX','e:BEAT_ROUTE16_SNORLAX'],
+  x:'A sleeping Snorlax blocks both Route 12 (south of Lavender) and Route 16 (west of Celadon). Play the Poké Flute to wake one and catch it: there are only two. Then take either path south to Fuchsia City. The house on Route 16 has HM02 Fly.',lv:'35–40'},
+ {id:'koga',ch:'Soul Badge',t:'Beat Koga at the Fuchsia Gym',at:'fuchsia',c:['b:4','e:BEAT_KOGA'],gym:['Bug','Poison'],
+  x:'The gym is a maze of invisible walls. Koga\'s team is Venonat and Venomoth (Bug/Poison), and they lean on status moves. Fire, Flying, Psychic and Rock moves all work. Bring Antidotes and Awakenings.',lv:'45–50'},
+ {id:'safari',ch:'Soul Badge',t:'Find Surf and the Gold Teeth in the Safari Zone',at:'safari',c:['e:GOT_HM03'],
+  x:'Pay for the Safari Zone and head for the far end, the Secret House, for HM03 Surf. The Warden\'s Gold Teeth are lying in one of the areas too. It\'s a big place: you get 500 steps per visit.',lv:'—'},
+ {id:'warden',ch:'Soul Badge',t:'Return the Gold Teeth and get Strength',at:'fuchsia',c:['e:GOT_HM04','e:GAVE_GOLD_TEETH'],
+  x:'Give the Gold Teeth to the Safari Zone Warden in Fuchsia City. He thanks you with HM04 Strength, which you need to push boulders later.',lv:'—'},
+ {id:'saffron',ch:'Marsh Badge',t:'Get into Saffron City',at:'saffron',c:[],
+  x:'The gate guards around Saffron are thirsty. Give one a drink from the Celadon Department Store roof and all the gates open. Team Rocket has taken over Silph Co.',lv:'—'},
+ {id:'silph',ch:'Marsh Badge',t:'Free Silph Co. from Team Rocket',at:'saffron',c:['e:BEAT_SILPH_CO_GIOVANNI'],
+  x:'The Card Key on the 5th floor opens the locked doors, and the teleport pads are a puzzle. Your rival is on 7F, where an employee also gives you a Lapras. Jessie & James and then Giovanni wait on 11F. The company president rewards you with the Master Ball.',lv:'40–45'},
+ {id:'sabrina',ch:'Marsh Badge',t:'Beat Sabrina at the Saffron Gym',at:'saffron',c:['b:5','e:BEAT_SABRINA'],gym:['Psychic'],
+  x:'The gym is a grid of teleport pads. Psychic types are brutal in this game: Ghost moves don\'t affect them, and the few Bug moves are low-powered. Your best bet is a strong, fast hard-hitter with high-power Normal or Physical moves. The Fighting Dojo next door gives you Hitmonlee or Hitmonchan.',lv:'48–52'},
+ {id:'mansion',ch:'Volcano Badge',t:'Find the Secret Key in the Pokémon Mansion',at:'cinnabar',c:['i:Secret Key','e:BEAT_BLAINE'],
+  x:'Surf south from Pallet Town along Route 21 to Cinnabar Island. The Cinnabar Gym is locked: its key is in the burned-out Pokémon Mansion. Flip the statue switches to open doors on each floor; the key is in the basement.',lv:'45–50'},
+ {id:'blaine',ch:'Volcano Badge',t:'Beat Blaine at the Cinnabar Gym',at:'cinnabar',c:['b:6','e:BEAT_BLAINE'],gym:['Fire'],
+  x:'Answer the quiz machines correctly to skip trainers. Blaine uses Fire types: Water, Ground and Rock moves are what you want. The lab on the island revives your fossil.',lv:'50–54'},
+ {id:'giovanni',ch:'Earth Badge',t:'Beat Giovanni at the Viridian Gym',at:'viridian',c:['b:7','e:BEAT_VIRIDIAN_GYM_GIOVANNI'],gym:['Ground','Rock'],
+  x:'The Viridian Gym is finally open, and its leader is Giovanni himself. He uses Ground types, which Water, Grass and Ice moves wreck. Electric moves won\'t work.',lv:'53–56'},
+ {id:'rival3',ch:'Pokémon League',t:'Beat your rival on Route 22',at:'r22',c:['e:BEAT_ROUTE22_RIVAL_2ND_BATTLE'],
+  x:'Head west from Viridian City. Your rival stops you on Route 22 on the way to the League. Then show all 8 badges at the Route 23 checkpoints.',lv:'53–56'},
+ {id:'victory',ch:'Pokémon League',t:'Make it through Victory Road',at:'victory',c:[],
+  x:'Use Strength to push boulders onto the floor switches. The legendary Moltres rests here. Save before trying to catch it.',lv:'55–58'},
+ {id:'lorelei',ch:'Elite Four',t:'Beat Lorelei',at:'indigo',c:['e:BEAT_LORELEIS_ROOM_TRAINER_0'],gym:['Ice','Water'],
+  x:'Stock up at the Indigo Plateau Poké Mart first: Full Restores, Revives and Hyper Potions. Once you step in, you face all four back to back. Lorelei uses Ice and Water types, so Electric, Fighting and Rock moves serve you well.',lv:'56–60'},
+ {id:'bruno',ch:'Elite Four',t:'Beat Bruno',at:'indigo',c:['e:BEAT_BRUNOS_ROOM_TRAINER_0'],gym:['Fighting','Rock'],
+  x:'Bruno uses Fighting types plus two Onix. Psychic and Flying moves handle the fighters, while Water and Grass handle Onix.',lv:'57–60'},
+ {id:'agatha',ch:'Elite Four',t:'Beat Agatha',at:'indigo',c:['e:BEAT_AGATHAS_ROOM_TRAINER_0'],gym:['Ghost','Poison'],
+  x:'Agatha\'s Ghost types are also part Poison in this game, so Psychic and Ground moves are your best weapons. Normal and Fighting moves pass right through Ghosts.',lv:'58–62'},
+ {id:'lance',ch:'Elite Four',t:'Beat Lance',at:'indigo',c:['e:BEAT_LANCES_ROOM_TRAINER_0'],gym:['Dragon','Flying'],
+  x:'Lance leads with Dragonair, Gyarados and Aerodactyl. Ice moves hit his Dragons twice as hard, Electric handles Gyarados, and Rock handles the fliers.',lv:'60–63'},
+ {id:'champ',ch:'Elite Four',t:'Become the Champion',at:'indigo',c:['e:BEAT_CHAMPION_RIVAL'],
+  x:'Your rival got there first. His team depends on how your early battles went, and it\'s built around his Eevee evolution. Win this and you enter the Hall of Fame.',lv:'62–65'},
+];
+const SIDE=[
+ {id:'r22',t:'Early rival battle on Route 22',at:'r22',after:'dex',c:['e:BEAT_ROUTE22_RIVAL_1ST_BATTLE'],x:'Optional quick battle west of Viridian City. Nidoran♂ and Nidoran♀ live on this route too.'},
+ {id:'flash',t:'Get HM05 Flash',at:'r2',after:'brock',c:['e:GOT_HM05'],x:'Oak\'s aide in the gatehouse on Route 2 gives it to you once you\'ve caught 10 kinds of Pokémon. Great for Rock Tunnel.'},
+ {id:'bulba',t:'Get Bulbasaur in Cerulean City',at:'cerulean',after:'rival2',c:['e:GOT_BULBASAUR_IN_CERULEAN','d:1'],x:'A girl in a house in Cerulean gives you Bulbasaur, but only if your Pikachu is happy. Keep it in your party and avoid letting it faint.'},
+ {id:'char',t:'Get Charmander on Route 24',at:'r24',after:'rival2',c:['d:4'],x:'A trainer near Nugget Bridge gives away a Charmander.'},
+ {id:'squirtle',t:'Get Squirtle from Officer Jenny',at:'vermilion',after:'surge',c:['e:GOT_SQUIRTLE_FROM_OFFICER_JENNY','d:7'],x:'After you win the Thunder Badge, Officer Jenny in Vermilion City gives you a Squirtle.'},
+ {id:'bike',t:'Get the Bicycle',at:'cerulean',after:'ssanne',c:['e:GOT_BICYCLE'],x:'Hear out the Pokémon Fan Club chairman in Vermilion to get the Bike Voucher, then trade it at the Cerulean bike shop.'},
+ {id:'rods',t:'Collect all three fishing rods',at:'vermilion',after:'ssanne',c:['i:Super Rod'],x:'Old Rod: fishing guru in Vermilion. Good Rod: house in Fuchsia. Super Rod: house on Route 12.'},
+ {id:'amber',t:'Revive the Old Amber into Aerodactyl',at:'pewter',after:'blaine',c:['d:142'],x:'The Old Amber is in the back of the Pewter Museum. The lab on Cinnabar Island brings it back as Aerodactyl.'},
+ {id:'fossil',t:'Revive your Mt. Moon fossil',at:'cinnabar',after:'mansion',c:['d:138','d:140'],x:'Take the Dome or Helix fossil to the Cinnabar lab.'},
+ {id:'eevee',t:'Find the Eevee in Celadon',at:'celadon',after:'celadon',c:['d:133'],x:'Go around the back of the Celadon Mansion and up the stairs to the top floor.'},
+ {id:'fly',t:'Get HM02 Fly',at:'r16',after:'tower',c:['e:GOT_HM02'],x:'In a small house on Route 16, reached by cutting a tree.'},
+ {id:'lax2',t:'Catch the second Snorlax',at:'r16',after:'snorlax',c:['e:BEAT_ROUTE12_SNORLAX&e:BEAT_ROUTE16_SNORLAX'],x:'There\'s one on Route 12 and one on Route 16. Save first, as each can only be met once.'},
+ {id:'dojo',t:'Beat the Fighting Dojo',at:'saffron',after:'saffron',c:['e:GOT_HITMONLEE','e:GOT_HITMONCHAN'],x:'Beat the Karate Master and take Hitmonlee or Hitmonchan.'},
+ {id:'lapras',t:'Get Lapras at Silph Co.',at:'saffron',after:'saffron',c:['d:131'],x:'An employee on the 7th floor gives it to you.'},
+ {id:'zapdos',t:'Catch Zapdos',at:'power',after:'safari',c:['e:BEAT_ZAPDOS'],x:'Surf down the river on Route 10 to reach the Power Plant. Zapdos is deep inside. Save first.'},
+ {id:'articuno',t:'Catch Articuno',at:'seafoam',after:'safari',c:['e:BEAT_ARTICUNO'],x:'In the Seafoam Islands between Fuchsia and Cinnabar. Push the boulders down the holes to slow the currents.'},
+ {id:'moltres',t:'Catch Moltres',at:'victory',after:'rival3',c:['e:BEAT_MOLTRES'],x:'Resting inside Victory Road.'},
+ {id:'mewtwo',t:'Catch Mewtwo',at:'ccave',after:'champ',c:['e:BEAT_MEWTWO'],x:'After becoming Champion, Surf to the cave north-west of Cerulean City. Mewtwo waits in the deepest part. Use your Master Ball if you still have it.'},
+];
+const JCH=['Pallet Town','Boulder Badge','Cascade Badge','Thunder Badge','Rainbow Badge','Marsh Badge','Soul Badge','Volcano Badge','Earth Badge','Pokémon League','Elite Four'];
+let jShowAll=false;
+function jCond(c){const P=S.prog||{};
+  return c.split('&').every(part=>{const [k,v]=[part.slice(0,1),part.slice(2)];
+    if(k==='e')return !!(P.ev&&P.ev.includes(v));
+    if(k==='b'){const i=+v;if(P.badges!=null&&(P.badges>>i)&1)return true;return LOCS.some(l=>l.b.includes(BADGES[i])&&S.done[dk(l.id,'b',BADGES[i])])}
+    if(k==='i')return !!(P.items&&P.items.includes(nrm(v)));
+    if(k==='d')return !!S.caught[NAME(+v)];
+    return false})}
+function journalState(){S.journal ||= {};
+  const own=STORY.map(s=>!!S.journal[s.id]||s.c.some(jCond));
+  const done=[];let later=false;for(let i=STORY.length-1;i>=0;i--){later=own[i]||later;done[i]=later}
+  return {done,next:done.indexOf(false)}}
+function counterTips(types){
+  const good=TYPES.filter(t=>eff(t,types)>=2);
+  const ready=[];S.mons.forEach(o=>{let best=null;o.moves.forEach(id=>{const [nm,ty,pw]=MV(id);const x=eff(ty,types);if(pw>1&&x>=2&&(!best||x>best[1]))best=[nm,x]});if(best)ready.push(`<b>${esc(o.nick||NAME(o.n))}</b> (${best[0]})`)});
+  return `<div class="tline"><span>Use</span>${good.map(typeChip).join('')}</div>`+(ready.length?`<p class="note">Your Pokémon ready for it: ${ready.slice(0,5).join(', ')}</p>`:`<p class="note">None of your logged Pokémon has a super-effective move yet.</p>`)}
+function drawJournal(){
+  const el=document.getElementById('jBody'); const {done,next}=journalState();
+  const cur=STORY[next];
+  let h='';
+  if(cur){
+    h+=`<div class="jnext"><div class="jkicker">Next up · ${cur.ch}</div><h2>${cur.t}</h2>
+      <p>${cur.x}</p>
+      <div class="tline"><span>Where</span><button class="link" data-go="${cur.at}">${byId[cur.at].name}</button></div>
+      <div class="tline"><span>Suggested level</span><b>${cur.lv}</b></div>
+      ${cur.gym?`<div class="tline"><span>Their types</span>${cur.gym.map(typeChip).join('')}</div>`+counterTips(cur.gym):''}
+      <div class="btns"><button class="bigbtn" data-done="${cur.id}">Mark as done</button><button data-go="${cur.at}">Show on map</button></div></div>`;
+  } else h+=`<div class="jnext"><div class="jkicker">Story complete</div><h2>You're the Champion!</h2><p>The Hall of Fame is yours. Check the optional quests below: Mewtwo is waiting.</p></div>`;
+  h+=`<p class="note" style="margin:8px 2px">${S.lastSave?`Steps tick themselves when you import your save (last: ${new Date(S.lastSave.at).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}).`:'Import your save in the Team or Progress tab and steps tick themselves, or tick them by hand.'}</p>`;
+  // Side quests available now
+  const unlocked=q=>{const i=STORY.findIndex(s=>s.id===q.after);return i<0||done[i]};
+  const sideDone=q=>!!S.journal['side:'+q.id]||q.c.some(jCond);
+  const avail=SIDE.filter(unlocked);
+  h+=`<h2 class="sec">Optional quests · ${avail.filter(sideDone).length} of ${avail.length} done</h2><div id="jSide"></div>`;
+  // Story list by chapter
+  h+=`<h2 class="sec">Story <button class="chip" id="jAll" aria-pressed="${jShowAll}">${jShowAll?'Hide spoilers':'Show all steps'}</button></h2><div id="jStory"></div>`;
+  el.innerHTML=h;
+  const side=el.querySelector('#jSide');
+  avail.forEach(q=>{const d=sideDone(q);const r=tickRow(q.t,d,()=>{S.journal['side:'+q.id]=!S.journal['side:'+q.id];save()},`<br><small class="loc">${q.x}</small><br><button class="link loc" data-go="${q.at}">${byId[q.at].name}</button>`);side.appendChild(r)});
+  if(!avail.length)side.innerHTML='<p class="empty">Keep going: side quests unlock as the story moves on.</p>';
+  const st=el.querySelector('#jStory');let lastCh='';
+  STORY.forEach((s,i)=>{
+    if(!jShowAll&&i>next&&next>=0)return;
+    if(s.ch!==lastCh){lastCh=s.ch;const hh=document.createElement('h3');hh.textContent=s.ch;st.appendChild(hh)}
+    const r=tickRow(s.t,done[i],()=>{S.journal[s.id]=!S.journal[s.id];save()},`<br><button class="link loc" data-go="${s.at}">${byId[s.at].name}</button>`);
+    if(i===next)r.classList.add('jcur');
+    st.appendChild(r)});
+  if(!jShowAll&&next>=0){const left=STORY.length-next-1;if(left>0)st.insertAdjacentHTML('beforeend',`<p class="empty">${left} more steps hidden to avoid spoilers.</p>`)}
+  el.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{tab('map');focusLoc(b.dataset.go);openLoc(b.dataset.go)});
+  el.querySelectorAll('[data-done]').forEach(b=>b.onclick=()=>{S.journal[b.dataset.done]=true;save();toast('Nice! On to the next step.')});
+  el.querySelector('#jAll').onclick=()=>{jShowAll=!jShowAll;drawJournal()};
+}
+
+/* ============================================================
    PROGRESS VIEW
    ============================================================ */
 // Progress cards open a list: what you have, then what's left, with where to find each
@@ -928,11 +1093,11 @@ function go(id){tab('map');focusLoc(id);openLoc(id)}
    ============================================================ */
 function tab(v){document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.v===v)));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
-  closeSheet(); if(v==='dex')drawDex(); if(v==='team')drawTeam(); if(v==='vs')drawVs(); if(v==='prog')drawProg()}
+  closeSheet(); if(v==='dex')drawDex(); if(v==='team')drawTeam(); if(v==='vs')drawVs(); if(v==='journal')drawJournal(); if(v==='prog')drawProg()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.v));
 function refresh(){document.getElementById('meter').textContent=Math.round(totals().all*100)+'%';drawMap();
   const on=v=>document.getElementById('v-'+v).classList.contains('on');
-  if(on('prog'))drawProg(); if(on('team'))drawTeam(); if(on('vs'))drawVs();
+  if(on('prog'))drawProg(); if(on('team'))drawTeam(); if(on('vs'))drawVs(); if(on('journal'))drawJournal();
   if(on('dex')){const sc=document.getElementById('dexList'),y=sc.scrollTop;drawDex();sc.scrollTop=y}}
 refresh();
 
