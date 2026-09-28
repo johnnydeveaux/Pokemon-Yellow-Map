@@ -235,6 +235,32 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
 .jnext p{margin:0 0 10px;line-height:1.45;font-size:.92rem}
 .row.jcur{outline:3px solid var(--ink)}
 .jnext .tline>span:first-child{min-width:9.2em}
+/* Don't miss: points of no return */
+.warn{background:var(--paper);border:3px solid #B42A1E;border-radius:14px;padding:11px 13px;margin:0 0 10px}
+.warn.pick{border-color:#2F66A8}
+.warn.ok{border-color:var(--scr2);background:#EEF1DA}
+.warn.lost{border-color:#8C9098;background:#ECEAE3}
+.warn .wk{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:800;color:#B42A1E}
+.warn.pick .wk{color:#2F66A8}.warn.ok .wk{color:var(--scr2)}.warn.lost .wk{color:#6B6F76}
+.warn .wk i{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:currentColor;font-style:normal}
+.warn .wk i b{color:#fff;font-size:.72rem;line-height:1}
+.warn h3{margin:4px 0 6px;font-size:1rem;line-height:1.25}
+.warn p{margin:0 0 8px;font-size:.9rem;line-height:1.45}
+.warn .wst{font-weight:700;font-size:.86rem;margin:0 0 8px}
+.warn .loot{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;margin:0 0 8px}
+.warn .loot button{display:flex;align-items:center;gap:6px;text-align:left;border:0;background:#F3EDCF;border-radius:8px;padding:6px 8px;font-size:.8rem;font-weight:700;line-height:1.2}
+.warn .loot button small{display:block;font-weight:500;opacity:.65}
+.warn .loot button.got{background:var(--scr1)}
+.warn .loot .bx{flex:none;width:16px;height:16px;border:2px solid var(--scr3);border-radius:4px;display:grid;place-items:center;font-size:.7rem}
+.warn .btns{display:flex;gap:8px;flex-wrap:wrap}
+.warn .btns button{border:2px solid var(--ink);background:var(--paper);border-radius:10px;padding:6px 11px;font-weight:700;font-size:.85rem}
+.jnext .warn{margin:4px 0 12px}
+.wrow{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid #0001;font-size:.88rem}
+.wrow b{flex:1}
+.wrow span{font-size:.78rem;opacity:.7}
+.node .wb circle{stroke:var(--scr0);stroke-width:.4}
+.node .wb.lose circle{fill:#B42A1E}.node .wb.pick circle{fill:#2F66A8}
+.node .wb path{fill:none;stroke:#fff;stroke-width:.5;stroke-linecap:round;stroke-linejoin:round}
 @media (prefers-reduced-motion:reduce){.sheet{transition:none}}
 </style>
 </head>
@@ -402,6 +428,7 @@ function drawMap(){
     n.dataset.id=l.id; n.setAttribute('role','button'); n.setAttribute('aria-label',`${l.name}, ${st.got} of ${st.total} done`);
     n.innerHTML=`<circle class="hit" cx="${l.x}" cy="${l.y}" r="5.5"/><circle class="ring" cx="${l.x}" cy="${l.y}" r="6"/><g class="ic" transform="translate(${l.x} ${l.y})">${ICON(l)}</g>`+
       (st.total&&st.got===st.total?`<circle class="done" cx="${l.x+3.6}" cy="${l.y-3.4}" r="1.7"/><path d="M${l.x+2.9} ${l.y-3.4}l.55.6 1-1.2"/>`:'')+
+      warnBadge(l)+
       (l.b.some(x=>/Badge$/.test(x)&&S.done[dk(l.id,'b',x)])?`<path class="star" transform="translate(${l.x-3.8} ${l.y-4.2}) scale(.55)" d="M0-3 .9-.9 3-.9 1.3.4 2 2.6 0 1.3-2 2.6-1.3.4-3-.9-.9-.9Z"/>`:'');
     const t=document.createElementNS(NS,'text');
     const label = l.t==='route' ? l.name.replace('Route ','') : (SHORT[l.id]||l.name.replace(/ (City|Town|Island)$/,''));
@@ -667,6 +694,7 @@ function lmRender(){
 function openLoc(id){
   const keep=sel===id&&sheet.classList.contains('on')?sBody.scrollTop:0;
   sel=id; const l=byId[id]; sheetOpen(l.name);
+  WARN.filter(w=>w.at===id).forEach(w=>sBody.appendChild(warnCard(w,()=>openLoc(id))));
   if(LMBYLOC[id]){const d=document.createElement('div');d.id='lmap';d.className='lmap';sBody.appendChild(d);lmRender()}
   const sec=(title,arr,build)=>{const h=document.createElement('h3');h.textContent=title;sBody.appendChild(h);
     if(!arr.length){const p=document.createElement('p');p.className='empty';p.textContent='None here.';sBody.appendChild(p);return}
@@ -945,6 +973,10 @@ function importSave(){
       if(r.dex)msg.push(`${r.dex} new in the Pokédex`); if(r.ticks)msg.push(`${r.ticks} checklist items ticked`);
       if(!sv.yellow)msg.push('(this looks like a Red/Blue save)');
       if(sv.here)msg.push(`you're at ${byId[sv.here.loc].name}`);
+      const hot=sv.here&&WARN.find(w=>w.at===sv.here.loc&&warnState(w).s==='open');
+      if(hot)msg.push(`Heads up: ${hot.t}${hot.loot?` (${warnState(hot).m})`:''}`);
+      const missed=WARN.filter(w=>warnState(w).s==='lost');
+      if(missed.length)msg.push(`missed for good: ${missed.map(w=>w.t.split(':')[0]).join(', ')}`);
       toast(msg.join(' · ')+'.'); if(sv.warn.length)setTimeout(()=>alert(sv.warn.join('\n')),300);
     }catch(e){alert(e.message||'That file could not be read as a Pokémon save.')}};
   inp.click();
@@ -1057,7 +1089,7 @@ const STORY=[
  {id:'thief',ch:'Thunder Badge',t:'Stop the Rocket thief in Cerulean',at:'cerulean',c:['e:BEAT_CERULEAN_ROCKET_THIEF'],
   x:'A house in Cerulean was robbed. Go through it to find the Rocket behind it. Beat him to get TM28 Dig back.',lv:'22'},
  {id:'ssanne',ch:'Thunder Badge',t:'Board the S.S. Anne and get Cut',at:'ssanne',c:['e:GOT_HM01'],
-  x:'Go south: Route 5, the Underground Path, then Route 6 to Vermilion City. Show your ticket at the harbour, beat your rival on board, and help the seasick captain. He gives you HM01 Cut. Teach it to someone, since you need it for the gym.',lv:'22–25'},
+  x:'Go south: Route 5, the Underground Path, then Route 6 to Vermilion City. Show your ticket at the harbour, beat your rival on board, and help the seasick captain. He gives you HM01 Cut. Teach it to someone, since you need it for the gym. Pick up every item on board before you walk off: the ship sails for good once you leave.',lv:'22–25'},
  {id:'surge',ch:'Thunder Badge',t:'Beat Lt. Surge at the Vermilion Gym',at:'vermilion',c:['b:2','e:BEAT_LT_SURGE'],gym:['Electric'],
   x:'Cut the small tree blocking the gym. Inside, search the trash cans for two hidden switches to open the door. Surge uses Electric types, so bring a Ground type. Diglett\'s Cave is just east of Vermilion.',lv:'25–28'},
  {id:'tunnel',ch:'Rainbow Badge',t:'Pass Rock Tunnel to Lavender Town',at:'rtunnel',c:[],
@@ -1113,7 +1145,7 @@ const SIDE=[
  {id:'squirtle',t:'Get Squirtle from Officer Jenny',at:'vermilion',after:'surge',c:['e:GOT_SQUIRTLE_FROM_OFFICER_JENNY','d:7'],x:'After you win the Thunder Badge, Officer Jenny in Vermilion City gives you a Squirtle.'},
  {id:'bike',t:'Get the Bicycle',at:'cerulean',after:'ssanne',c:['e:GOT_BICYCLE'],x:'Hear out the Pokémon Fan Club chairman in Vermilion to get the Bike Voucher, then trade it at the Cerulean bike shop.'},
  {id:'rods',t:'Collect all three fishing rods',at:'vermilion',after:'ssanne',c:['i:Super Rod'],x:'Old Rod: fishing guru in Vermilion. Good Rod: house in Fuchsia. Super Rod: house on Route 12.'},
- {id:'amber',t:'Revive the Old Amber into Aerodactyl',at:'pewter',after:'blaine',c:['d:142'],x:'The Old Amber is in the back of the Pewter Museum. The lab on Cinnabar Island brings it back as Aerodactyl.'},
+ {id:'amber',t:'Get the Old Amber and revive it into Aerodactyl',at:'pewter',after:'ssanne',c:['d:142'],x:'Once you have Cut, go back to Pewter City, cut the small tree east of the Museum and go in its side door. A scientist in the back room gives you the Old Amber. Take it to the lab on Cinnabar Island as soon as you arrive: no badge needed. It comes back as a level 30 Aerodactyl. The Amber never expires, so there\'s no rush.'},
  {id:'fossil',t:'Revive your Mt. Moon fossil',at:'cinnabar',after:'mansion',c:['d:138','d:140'],x:'Take the Dome or Helix fossil to the Cinnabar lab.'},
  {id:'eevee',t:'Find the Eevee in Celadon',at:'celadon',after:'celadon',c:['d:133'],x:'Go around the back of the Celadon Mansion and up the stairs to the top floor.'},
  {id:'fly',t:'Get HM02 Fly',at:'r16',after:'tower',c:['e:GOT_HM02'],x:'In a small house on Route 16, reached by cutting a tree.'},
@@ -1125,6 +1157,66 @@ const SIDE=[
  {id:'moltres',t:'Catch Moltres',at:'victory',after:'rival3',c:['e:BEAT_MOLTRES'],x:'Resting inside Victory Road.'},
  {id:'mewtwo',t:'Catch Mewtwo',at:'ccave',after:'champ',c:['e:BEAT_MEWTWO'],x:'After becoming Champion, Surf to the cave north-west of Cerulean City. Mewtwo waits in the deepest part. Use your Master Ball if you still have it.'},
 ];
+/* ============================================================
+   DON'T MISS — the few things in Yellow that can be lost for good
+   ============================================================ */
+const hasEv=k=>!!((S.prog||{}).ev||[]).includes(k);
+// Every item on the S.S. Anne (visible and hidden), straight from the game's map data
+function ssLoot(){const P=S.prog||{},out=[];S.done ||= {};
+  (LMBYLOC.ssanne||[]).forEach(i=>{const m=LM[i],w=lmShort(m,'ssanne');
+    m.o.filter(o=>o[2]==='i').forEach(o=>{const k=`ssanne|x|${o[3]}|${w}`;out.push({n:o[3],w,k,got:lmObjDone(o,m)||!!S.done[k]})});
+    m.hi.forEach(h=>{const k=`ssanne|x|${h[2]}|${w}`;out.push({n:h[2],w,k,hid:1,got:hexBit(P.hid,h[3])||!!S.done[k]})})});
+  return out}
+function laxSt(r){const me=hasEv(`BEAT_ROUTE${r}_SNORLAX`),other=hasEv(`BEAT_ROUTE${r===12?16:12}_SNORLAX`),got=!!S.caught.Snorlax;
+  if(!me)return {s:'open'};
+  if(!got)return {s:'lost',m:'You battled it, but there\'s no Snorlax in your Pokédex, so this one got away.'};
+  return {s:'ok',m:other?'Both Snorlax have been woken.':'Snorlax caught.'}}
+function legSt(e,n){return S.caught[n]?{s:'ok',m:`${n} caught.`}:hasEv(e)?{s:'lost',m:`You battled ${n}, but it isn't in your Pokédex. There's only one.`}:{s:'open'}}
+const SAVE1='Save right in front of it. If it faints or you run away, it disappears for good. If that happens, just reset and load your save.';
+const WARN=[
+ {id:'fossil',k:'pick',at:'mtmoon',after:'brock',step:'mtmoon',t:'Mt. Moon: you only get one fossil',
+  x:'After you beat the Super Nerd deep in Mt. Moon, take either the Dome Fossil (Kabuto) or the Helix Fossil (Omanyte). He keeps the other one. The Old Amber in Pewter is separate, so Aerodactyl is safe either way.',
+  st:()=>hasEv('GOT_DOME_FOSSIL')?{s:'ok',m:'You took the Dome Fossil (Kabuto).'}:hasEv('GOT_HELIX_FOSSIL')?{s:'ok',m:'You took the Helix Fossil (Omanyte).'}:{s:'open'}},
+ {id:'ssanne',k:'lose',at:'ssanne',after:'bill',step:'ssanne',loot:1,t:'S.S. Anne: grab everything before you step off',
+  x:'The ship sails for good the moment you walk off it with HM01 Cut. Getting Cut doesn\'t make it leave, so take your time. Hidden items need you to face the spot and press A.',
+  st:()=>{const L=ssLoot(),left=L.filter(x=>!x.got).length;
+    if(hasEv('SS_ANNE_LEFT'))return left?{s:'lost',m:`The ship has sailed with ${left} item${left>1?'s':''} still on board.`}:{s:'ok',m:'The ship has sailed, and you got everything.'};
+    return left?{s:'open',m:`${left} of ${L.length} items still on board.`}:{s:'ok',m:'Everything on board collected.'}}},
+ {id:'lax12',k:'lose',at:'r12',after:'tower',step:'snorlax',t:'Route 12 Snorlax: save first',x:SAVE1+' There are only two Snorlax in the game.',st:()=>laxSt(12)},
+ {id:'lax16',k:'lose',at:'r16',after:'tower',step:'snorlax',t:'Route 16 Snorlax: save first',x:SAVE1+' There are only two Snorlax in the game.',st:()=>laxSt(16)},
+ {id:'dojo',k:'pick',at:'saffron',after:'saffron',t:'Fighting Dojo: Hitmonlee or Hitmonchan',
+  x:'After you beat the Karate Master, take one of the two Poké Balls. The other one stays put. Hitmonlee kicks harder; Hitmonchan learns Fire, Ice and Thunder Punch as it levels up.',
+  st:()=>hasEv('GOT_HITMONLEE')?{s:'ok',m:'You took Hitmonlee.'}:hasEv('GOT_HITMONCHAN')?{s:'ok',m:'You took Hitmonchan.'}:{s:'open'}},
+ {id:'zapdos',k:'lose',at:'power',after:'safari',t:'Zapdos: save first',x:SAVE1,st:()=>legSt('BEAT_ZAPDOS','Zapdos')},
+ {id:'articuno',k:'lose',at:'seafoam',after:'warden',t:'Articuno: save first',x:SAVE1,st:()=>legSt('BEAT_ARTICUNO','Articuno')},
+ {id:'moltres',k:'lose',at:'victory',after:'rival3',step:'victory',t:'Moltres: save first',x:SAVE1,st:()=>legSt('BEAT_MOLTRES','Moltres')},
+ {id:'mewtwo',k:'lose',at:'ccave',after:'champ',t:'Mewtwo: save first',x:SAVE1+' Keep your Master Ball for it if you still have it.',st:()=>legSt('BEAT_MEWTWO','Mewtwo')},
+];
+let wShowAll=false;
+function warnState(w){S.warn ||= {};const r=w.st();if(r.s==='open'&&S.warn[w.id])return {s:'ok',m:'Marked as handled.',manual:1};return r}
+const WLABEL={lose:['!','Can be lost for good'],pick:['1','Pick one']};
+function warnCard(w,redraw,inJournal){
+  const r=warnState(w), c=document.createElement('div');
+  c.className=`warn ${w.k==='pick'?'pick':''} ${r.s==='ok'?'ok':r.s==='lost'?'lost':''}`;
+  const [ic,lab]=r.s==='ok'?['✓','Handled']:r.s==='lost'?['✕','Missed']:WLABEL[w.k];
+  let h=`<div class="wk"><i><b>${ic}</b></i>${lab}</div><h3>${w.t}</h3>`;
+  if(r.s==='open')h+=`<p>${w.x}</p>`;
+  if(r.m)h+=`<p class="wst">${r.m}</p>`;
+  if(w.loot&&r.s!=='ok')h+=`<div class="loot">${ssLoot().map((x,i)=>`<button data-i="${i}" class="${x.got?'got':''}" aria-pressed="${x.got}"><span class="bx">${x.got?'✓':''}</span><span>${esc(x.n)}<small>${esc(x.w)}${x.hid?' · hidden':''}</small></span></button>`).join('')}</div>`;
+  const btns=[];
+  if(inJournal)btns.push(`<button data-wgo>Show on map</button>`);
+  if(r.s==='open'&&!w.loot)btns.push(`<button data-wok>Mark as handled</button>`);
+  if(r.manual)btns.push(`<button data-wok>Undo</button>`);
+  if(btns.length)h+=`<div class="btns">${btns.join('')}</div>`;
+  c.innerHTML=h;
+  c.querySelectorAll('.loot button').forEach(b=>b.onclick=()=>{const x=ssLoot()[+b.dataset.i];if(!x)return;S.done[x.k]=!S.done[x.k];save();redraw&&redraw()});
+  c.querySelectorAll('[data-wok]').forEach(b=>b.onclick=()=>{S.warn[w.id]=!S.warn[w.id];save();redraw&&redraw()});
+  c.querySelectorAll('[data-wgo]').forEach(b=>b.onclick=()=>{tab('map');focusLoc(w.at);openLoc(w.at)});
+  return c}
+// Little flag on a map pin while something there can still be lost (red !) or needs a choice (blue 1)
+function warnBadge(l){const open=WARN.filter(w=>w.at===l.id&&warnState(w).s==='open');if(!open.length)return '';
+  const lose=open.some(w=>w.k==='lose'),x=l.x+3.7,y=l.y+3.5;
+  return `<g class="wb ${lose?'lose':'pick'}"><circle cx="${x}" cy="${y}" r="1.75"/>`+(lose?`<path d="M${x} ${y-.95}v1.05M${x} ${y+.8}v.02"/>`:`<path d="M${x-.35} ${y-.55}l.45-.4v1.9"/>`)+`</g>`}
 const JCH=['Pallet Town','Boulder Badge','Cascade Badge','Thunder Badge','Rainbow Badge','Marsh Badge','Soul Badge','Volcano Badge','Earth Badge','Pokémon League','Elite Four'];
 let jShowAll=false;
 function jCond(c){const P=S.prog||{};
@@ -1152,6 +1244,7 @@ function drawJournal(){
       <div class="tline"><span>Where</span><button class="link" data-go="${cur.at}">${byId[cur.at].name}</button></div>
       <div class="tline"><span>Suggested level</span><b>${cur.lv}</b></div>
       ${cur.gym?`<div class="tline"><span>Their types</span>${cur.gym.map(typeChip).join('')}</div>`+counterTips(cur.gym):''}
+      <div id="jWarnNow"></div>
       <div class="btns"><button class="bigbtn" data-done="${cur.id}">Mark as done</button><button data-go="${cur.at}">Show on map</button></div></div>`;
   } else h+=`<div class="jnext"><div class="jkicker">Story complete</div><h2>You're the Champion!</h2><p>The Hall of Fame is yours. Check the optional quests below: Mewtwo is waiting.</p></div>`;
   h+=`<p class="note" style="margin:8px 2px">${S.lastSave?`Steps tick themselves when you import your save (last: ${new Date(S.lastSave.at).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}).`:'Import your save in the Team or Progress tab and steps tick themselves, or tick them by hand.'}</p>`;
@@ -1159,10 +1252,30 @@ function drawJournal(){
   const unlocked=q=>{const i=STORY.findIndex(s=>s.id===q.after);return i<0||done[i]};
   const sideDone=q=>!!S.journal['side:'+q.id]||q.c.some(jCond);
   const avail=SIDE.filter(unlocked);
+  const wOpen=w=>{const i=STORY.findIndex(s=>s.id===w.after);return i<0||done[i]};
+  const wNow=WARN.filter(wOpen), wLater=WARN.filter(w=>!wOpen(w));
+  const wOpenCount=wNow.filter(w=>warnState(w).s==='open').length;
+  h+=`<h2 class="sec">Don't miss${wNow.length?` · ${wOpenCount} to watch`:''}</h2><div id="jWarn"></div>`;
   h+=`<h2 class="sec">Optional quests · ${avail.filter(sideDone).length} of ${avail.length} done</h2><div id="jSide"></div>`;
   // Story list by chapter
   h+=`<h2 class="sec">Story <button class="chip" id="jAll" aria-pressed="${jShowAll}">${jShowAll?'Hide spoilers':'Show all steps'}</button></h2><div id="jStory"></div>`;
   el.innerHTML=h;
+  const jw=el.querySelector('#jWarn');
+  const intro=document.createElement('p');intro.className='note';intro.style.margin='0 2px 8px';
+  intro.textContent='Almost everything in Yellow waits for you. These are the only things you can lose for good, or where you only get to pick one.';jw.appendChild(intro);
+  const order={lost:0,open:1,ok:2};
+  const inCard=w=>cur&&w.step===cur.id&&warnState(w).s==='open';
+  wNow.filter(w=>!inCard(w)).sort((a,b)=>order[warnState(a).s]-order[warnState(b).s]).forEach(w=>{
+    const st=warnState(w).s;
+    if(st==='ok'){const r=document.createElement('div');r.className='wrow';r.innerHTML=`✓ <b>${w.t}</b><span>${esc(warnState(w).m||'Handled')}</span>`;jw.appendChild(r);return}
+    jw.appendChild(warnCard(w,drawJournal,true))});
+  if(!wNow.length)jw.insertAdjacentHTML('beforeend','<p class="empty">Nothing to worry about yet.</p>');
+  if(wLater.length){
+    const b=document.createElement('button');b.className='chip';b.style.margin='4px 0 6px';b.setAttribute('aria-pressed',wShowAll);
+    b.textContent=wShowAll?'Hide what\'s coming':`Show what's coming later (${wLater.length})`;b.onclick=()=>{wShowAll=!wShowAll;drawJournal()};jw.appendChild(b);
+    if(wShowAll)wLater.forEach(w=>jw.appendChild(warnCard(w,drawJournal,true)))}
+  const wn=el.querySelector('#jWarnNow');
+  if(wn&&cur)WARN.filter(w=>w.step===cur.id&&warnState(w).s==='open').forEach(w=>wn.appendChild(warnCard(w,drawJournal,false)));
   const side=el.querySelector('#jSide');
   avail.forEach(q=>{const d=sideDone(q);const r=tickRow(q.t,d,()=>{S.journal['side:'+q.id]=!S.journal['side:'+q.id];save()},`<br><small class="loc">${q.x}</small><br><button class="link loc" data-go="${q.at}">${byId[q.at].name}</button>`);side.appendChild(r)});
   if(!avail.length)side.innerHTML='<p class="empty">Keep going: side quests unlock as the story moves on.</p>';
