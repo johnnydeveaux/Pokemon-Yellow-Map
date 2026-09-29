@@ -213,6 +213,32 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
 .bm{display:grid;grid-template-columns:1fr auto auto;gap:4px 8px;align-items:center;font-size:.84rem}
 .bm b{font-weight:800}
 .bm small{opacity:.7}
+/* Best moveset + compare */
+.cmpbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
+.card.sug{border-color:var(--ink)}
+.sgl{margin-top:8px;display:grid;gap:6px}
+.sgl>div{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;font-size:.84rem;border-top:1px dashed #0002;padding-top:6px}
+.sgl .type{font-size:.62rem;padding:1px 6px;vertical-align:1px}
+.sgl small{opacity:.7}
+.sgl .how{text-align:right;font-weight:800;font-size:.78rem;white-space:nowrap}
+.sgl .how small{display:block;font-weight:600;white-space:normal;max-width:9em}
+.cmppick{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin-bottom:8px}
+.cmppick span{font-weight:800;font-size:.8rem;opacity:.6}
+.cmppick select{min-width:0;width:100%;font:inherit;font-size:16px;padding:8px 6px;border:2px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink)}
+.cmpcols{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+.cmpcol{background:var(--paper);border-radius:12px;padding:9px;min-width:0}
+.cmpcol>b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmpcol>small{display:block;font-size:.72rem;opacity:.7;margin-bottom:6px}
+.cmpmv{display:grid;gap:4px}
+.cmpmv span{display:flex;flex-direction:column;background:#F3EDCF;border-radius:6px;padding:4px 6px;border-left:5px solid #999;border-top:2px solid transparent;border-right:2px solid transparent;border-bottom:2px solid transparent;min-width:0}
+.cmpmv span.diff{border-top-color:var(--ink);border-right-color:var(--ink);border-bottom-color:var(--ink)}
+.cmpmv em{font-style:normal;font-weight:800;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmpmv em i{font-style:normal;margin-left:3px;color:#B08D0E}
+.cmpmv small{font-size:.66rem;opacity:.7}
+.cmpmv span.none{opacity:.45;font-size:.75rem;font-weight:600}
+.cmpst{margin-top:8px;font-size:.74rem;display:grid;gap:3px}
+.cmpst>div{display:flex;justify-content:space-between;gap:4px}
+.cmpst .bar{height:8px;display:block}
 
 /* Place maps */
 .lmap{margin:4px 0 6px}
@@ -269,7 +295,7 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
 <noscript><div style="padding:24px;font:17px/1.5 system-ui;background:#FFFBEA">
 <b>This preview can't run the app.</b><br>The Files preview shows pages without running them. Open this file from its web address in Safari instead.</div></noscript>
 <header>
-  <h1>Pokémon Yellow Tracker <span class="ver">v14.0</span><small>Map and 100% checklist</small></h1>
+  <h1>Pokémon Yellow Tracker <span class="ver">v15.0</span><small>Map and 100% checklist</small></h1>
   <div class="meter" id="meter" aria-label="Overall completion">0%</div>
 </header>
 <div class="search">
@@ -753,6 +779,8 @@ function openDex(n,back=null){
   // Owned
   const own=ownedOf(n);
   if(own.length){h+=`<h3>Yours (${own.length})</h3><div id="dOwn"></div>`}
+  h+=`<h3>Best moveset</h3><div id="dBest"></div>`;
+  if(own.length)h+=`<h3>Compare movesets</h3><div id="dCmp"></div>`;
   // Stats
   const SN=['HP','Atk','Def','Spd','Spc'];
   h+=`<h3>Base stats</h3>`+m.st.map((v,i)=>`<div class="sb"><span>${SN[i]}</span><span>${v}</span><div class="bar"><i style="width:${Math.min(100,v/160*100)}%"></i></div></div>`).join('')+
@@ -783,6 +811,8 @@ function openDex(n,back=null){
   if(WHERE[name].length)WHERE[name].forEach(id=>{const a=document.createElement('button');a.className='link';a.textContent=byId[id].name;a.onclick=()=>{tab('map');focusLoc(id);openLoc(id)};wh.appendChild(a)});
   else wh.innerHTML='<p class="empty">Evolve or trade.</p>';
   if(own.length){const o=b.querySelector('#dOwn');own.forEach(pm=>o.appendChild(monCard(pm,self)))}
+  drawBest(b.querySelector('#dBest'),n,own);
+  if(own.length)drawCompare(b.querySelector('#dCmp'),n,own);
 }
 
 /* ============================================================
@@ -997,6 +1027,96 @@ function attackPool(n,known){
   return ids.map(id=>{const [nm,ty,pw,ac]=MV(id);const stab=m.t.includes(ty);return {id,nm,ty,pw,ac,stab,score:pw>1?pw*(stab?1.5:1)*ac/100:0,
       how:known&&known.length?'Knows it':m.l1.includes(id)?'Lv 1':m.lv.find(x=>x[1]===id)?`Lv ${m.lv.find(x=>x[1]===id)[0]}`:tmName(D.TM.indexOf(id)+1)}})
     .filter(x=>x.score>0&&!/^(Explosion|Selfdestruct)$/.test(x.nm)).sort((a,b)=>b.score-a.score);
+}
+/* ---- Suggested moveset: the best 4 moves a Pokémon can learn ----
+   Scores every damaging move it can learn by power × accuracy × same-type
+   bonus × its matching attack stat (Gen 1: physical types use Attack, the
+   rest use Special), then picks moves one at a time so that together they
+   hit as many of the 151 Pokémon as hard as possible (type coverage).
+   A top-tier status move (sleep, paralysis, Swords Dance, Amnesia…) takes
+   the 4th slot when a 4th attack would add little. */
+const PHYS=new Set(['Normal','Fighting','Flying','Poison','Ground','Rock','Bug','Ghost']);
+const MV_MOD={Solarbeam:.5,'Sky Attack':.5,'Skull Bash':.5,'Razor Wind':.5,Dig:.6,Fly:.6,'Take Down':.85,'Double-Edge':.85,Submission:.85,
+  'Hyper Beam':.8,Thrash:.8,'Petal Dance':.8,Rage:.6,'Dream Eater':.3,'Jump Kick':.9,'Hi Jump Kick':.9,
+  Slash:1.4,'Razor Leaf':1.4,Crabhammer:1.4,'Karate Chop':1.4,
+  Doubleslap:3,'Comet Punch':3,'Fury Attack':3,'Pin Missile':3,'Spike Cannon':3,Barrage:3,'Fury Swipes':3,'Double Kick':2,Twineedle:2,Bonemerang:2};
+const MV_SKIP=new Set(['Explosion','Selfdestruct','Struggle','Sonicboom','Dragon Rage','Counter','Bide','Psywave','Super Fang','Guillotine','Horn Drill','Fissure']);
+const MV_FIXED={'Seismic Toss':'Fighting','Night Shade':'Ghost'}; // damage = user's level
+const MV_SUPPORT=['Spore','Sleep Powder','Lovely Kiss','Hypnosis','Sing','Thunder Wave','Glare','Stun Spore','Amnesia','Swords Dance','Softboiled','Recover'];
+const MV_ROLE={Spore:'puts the foe to sleep','Sleep Powder':'puts the foe to sleep','Lovely Kiss':'puts the foe to sleep',Hypnosis:'puts the foe to sleep',Sing:'puts the foe to sleep',
+  'Thunder Wave':'paralyzes the foe',Glare:'paralyzes the foe','Stun Spore':'paralyzes the foe',Amnesia:'doubles its Special','Swords Dance':'doubles its Attack',Softboiled:'heals half its HP',Recover:'heals half its HP'};
+const DEFS=(()=>{const c={};DEXDATA.MON.forEach(m=>{const k=m.t.join('/');c[k]=c[k]||[m.t,0];c[k][1]++});return Object.values(c)})();
+function learnHow(n,id){const m=MON(n),l=m.lv.find(x=>x[1]===id),t=m.tm.find(k=>D.TM[k-1]===id);
+  return m.l1.includes(id)?'Knows from Lv 1':l?`Learns at Lv ${l[0]}`:t?tmName(t):''}
+function moveRater(n){
+  const m=MON(n),[,atk,,,spc]=m.st;
+  const base=id=>{const [nm,ty,pw,ac]=MV(id);
+    if(MV_FIXED[nm])return 70;
+    if(MV_SKIP.has(nm)||!(pw>1))return 0;
+    return pw*(MV_MOD[nm]||1)*Math.pow(ac/100,1.5)*(m.t.includes(ty)?1.5:1)*((PHYS.has(ty)?atk:spc)+40)/100};
+  const vs=(id,def)=>{const [nm,ty]=MV(id),b=base(id);if(!b)return 0;const x=eff(MV_FIXED[nm]||ty,def);return MV_FIXED[nm]?(x>0?b:0):b*x};
+  // how good a set of moves is: average of its best hit on each of the 151 Pokémon
+  const value=ids=>{let s=0,w=0;DEFS.forEach(([def,c])=>{let b=0;ids.forEach(id=>{const v=vs(id,def);if(v>b)b=v});s+=b*c;w+=c});return s/w};
+  return {base,vs,value};
+}
+function suggestSet(n,levelOnly=false){
+  const m=MON(n),R=moveRater(n);
+  const pool=[...new Set([...m.l1,...m.lv.map(x=>x[1]),...(levelOnly?[]:m.tm.map(k=>D.TM[k-1]))])];
+  const atk=pool.filter(id=>R.base(id)>0), pick=[], gains=[];
+  while(pick.length<4){let best=null,bv=R.value(pick);
+    atk.forEach(id=>{if(pick.includes(id))return;const v=R.value([...pick,id]);if(!best||v>best[1])best=[id,v]});
+    if(!best||best[1]-bv<=0.0001)break; gains.push(best[1]-bv); pick.push(best[0])}
+  const sup=MV_SUPPORT.map(nm=>pool.find(id=>MV(id)[0]===nm)).find(Boolean);
+  if(sup){const v3=R.value(pick.slice(0,3));
+    if(pick.length<4)pick.push(sup);
+    else if(gains[3]<v3*0.06)pick[3]=sup}
+  // coverage is maxed out: fill the empty slots with its next-best attacks, new types first
+  const types=()=>pick.map(id=>MV(id)[1]);
+  atk.filter(id=>!pick.includes(id)).sort((a,b)=>(types().includes(MV(a)[1])-types().includes(MV(b)[1]))||R.value([b])-R.value([a]))
+    .forEach(id=>{if(pick.length<4&&!types().includes(MV(id)[1]))pick.push(id)});
+  atk.filter(id=>!pick.includes(id)).sort((a,b)=>R.value([b])-R.value([a])).forEach(id=>{if(pick.length<4)pick.push(id)});
+  return pick;
+}
+// How a moveset does against the 151 Pokémon
+function setStats(n,ids){
+  const R=moveRater(n); let se=0,walled=0;
+  DEFS.forEach(([def,c])=>{let bx=-1;ids.forEach(id=>{if(!R.base(id))return;const [nm,ty]=MV(id);const x=eff(MV_FIXED[nm]||ty,def);const e=MV_FIXED[nm]?(x>0?1:0):x;if(e>bx)bx=e});
+    if(bx>=2)se+=c; if(bx>=0&&bx<=0.5)walled+=c});
+  return {value:R.value(ids),se,walled};
+}
+let bestMode='tm', cmpSel={};
+function drawBest(box,n,own){
+  const set=suggestSet(n,bestMode==='lv'), R=moveRater(n);
+  const knows=id=>own.filter(o=>o.moves.includes(id)).map(o=>esc(o.nick||NAME(o.n)));
+  const tile=id=>{const [mn,ty]=MV(id);return `<span style="border-left-color:${TCOL[ty]}">${mn}</span>`};
+  box.innerHTML=`<div class="cmpbar"><button class="chip" data-m="tm" aria-pressed="${bestMode==='tm'}">With TMs and HMs</button><button class="chip" data-m="lv" aria-pressed="${bestMode==='lv'}">Level-up moves only</button></div>
+    <div class="card sug"><div class="info"><div class="top"><b>★ Suggested for ${NAME(n)}</b></div>
+      <div class="moves">${[0,1,2,3].map(i=>set[i]?tile(set[i]):'<span class="none">—</span>').join('')}</div>
+      <div class="sgl">${set.map(id=>{const [mn,ty,pw,ac]=MV(id);const k=knows(id);
+        const why=R.base(id)?`${MV_FIXED[mn]?'Damage = its level':`Power ${pw} · ${ac}%`}${MON(n).t.includes(ty)?' · same type ×1.5':''}`:MV_ROLE[mn]||'Support';
+        return `<div><span><b>${mn}</b> ${typeChip(ty)}<br><small>${why}</small></span><span class="how">${learnHow(n,id)}${k.length?`<small>✓ ${k.join(', ')}</small>`:''}</span></div>`}).join('')}</div></div></div>`;
+  box.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{bestMode=c.dataset.m;drawBest(box,n,own);const cb=box.parentNode.querySelector('#dCmp');if(cb)drawCompare(cb,n,own)});
+}
+function drawCompare(box,n,own){
+  const opts=[['tm','★ Suggested (with TMs)'],['lv','★ Suggested (level-up only)'],...own.map(o=>[o.id,`${o.nick||NAME(o.n)} · Lv ${o.lvl}`])];
+  const cs=cmpSel[n]=cmpSel[n]||[own[0].id,own[1]?own[1].id:bestMode];
+  if(!opts.some(o=>o[0]===cs[0]))cs[0]=own[0].id; if(!opts.some(o=>o[0]===cs[1]))cs[1]=bestMode;
+  const setOf=k=>k==='tm'||k==='lv'?{ids:suggestSet(n,k==='lv'),t:'★ Suggested',s:k==='lv'?'Level-up moves only':'With TMs and HMs'}
+    :(o=>({ids:o.moves.filter(Boolean),t:esc(o.nick||NAME(o.n)),s:`Lv ${o.lvl}${o.nick?' · '+NAME(o.n):''}`}))(own.find(o=>o.id===k));
+  const ref=suggestSet(n,false), top=setStats(n,ref).value||1;
+  const A=setOf(cs[0]),B=setOf(cs[1]);
+  const col=(S,O)=>{const st=setStats(n,S.ids),pct=Math.round(st.value/top*100);
+    return `<div class="cmpcol"><b>${S.t}</b><small>${S.s}</small>
+      <div class="cmpmv">${[0,1,2,3].map(i=>{const id=S.ids[i];if(!id)return '<span class="none">— empty —</span>';const [mn,ty,pw]=MV(id);
+        const tag=ref.includes(id)?'<i title="In the suggested set">★</i>':'';const diff=O.ids.includes(id)?'':' class="diff"';
+        return `<span${diff} style="border-left-color:${TCOL[ty]}"><em>${mn}${tag}</em><small>${ty}${pw>1?' · '+pw:MV_FIXED[mn]?' · = Lv':' · status'}</small></span>`}).join('')}</div>
+      <div class="cmpst"><div><span>Moveset score</span><b>${pct}%</b></div><div class="bar"><i style="width:${Math.min(100,pct)}%"></i></div>
+      <div><span>Hits ×2</span><b>${st.se} / 151</b></div><div><span>Walled (½ or less)</span><b>${st.walled}</b></div></div></div>`};
+  const sel=(i)=>`<select data-i="${i}" aria-label="Compare ${i?'right':'left'}">${opts.map(([v,t])=>`<option value="${v}"${cs[i]===v?' selected':''}>${esc(t)}</option>`).join('')}</select>`;
+  const miss=ref.filter(id=>!A.ids.includes(id));
+  box.innerHTML=`<div class="cmppick">${sel(0)}<span>vs</span>${sel(1)}</div><div class="cmpcols">${col(A,B)}${col(B,A)}</div>
+    <p class="hint">Score is against the suggested set with TMs (100%), averaged over all 151 Pokémon. Bold outlines mark moves the other side doesn't have. ★ = in the suggested set.${cs[0]!=='tm'&&cs[0]!=='lv'&&miss.length?` Left is missing: ${miss.map(id=>`<b>${MV(id)[0]}</b> (${learnHow(n,id)})`).join(', ')}.`:''}</p>`;
+  box.querySelectorAll('select').forEach(s=>s.onchange=()=>{cs[+s.dataset.i]=s.value;drawCompare(box,n,own)});
 }
 function drawVs(){
   const el=document.getElementById('vsBody');
