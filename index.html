@@ -155,10 +155,11 @@ table.mv td:nth-child(2){font-weight:700}
 .tms b{opacity:.55;font-weight:700;margin-right:3px}
 .evo{display:flex;align-items:center;gap:4px;overflow-x:auto;padding-bottom:4px}
 .evo .stage{display:flex;flex-direction:column;gap:4px}
-.evo .arrow{font-weight:900;opacity:.5}
-.evo button{display:flex;flex-direction:column;align-items:center;background:#F3EDCF;border:2px solid transparent;border-radius:10px;padding:4px 8px;font-size:.78rem;font-weight:700;min-width:72px}
+.evo .step{display:flex;align-items:center;gap:3px}
+.evo .how{display:flex;flex-direction:column;align-items:center;text-align:center;font-size:.68rem;font-weight:800;line-height:1.15;max-width:4.6em;min-width:2.9em}
+.evo .how b{font-size:1.1rem;font-weight:900;opacity:.5;line-height:1}
+.evo button{display:flex;flex-direction:column;align-items:center;background:#F3EDCF;border:2px solid transparent;border-radius:10px;padding:4px 5px;font-size:.74rem;font-weight:700;min-width:64px}
 .evo button.cur{border-color:var(--ink)}
-.evo button small{font-weight:600;opacity:.65;font-size:.7rem}
 .hint{font-size:.8rem;opacity:.75;margin:4px 0 0}
 .bigbtn{border:2px solid var(--ink);background:var(--cart);border-radius:10px;padding:10px 14px;font-weight:800}
 
@@ -295,7 +296,7 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
 <noscript><div style="padding:24px;font:17px/1.5 system-ui;background:#FFFBEA">
 <b>This preview can't run the app.</b><br>The Files preview shows pages without running them. Open this file from its web address in Safari instead.</div></noscript>
 <header>
-  <h1>Pokémon Yellow Tracker <span class="ver">v15.0</span><small>Map and 100% checklist</small></h1>
+  <h1>Pokémon Yellow Tracker <span class="ver">v16.0</span><small>Map and 100% checklist</small></h1>
   <div class="meter" id="meter" aria-label="Overall completion">0%</div>
 </header>
 <div class="search">
@@ -791,8 +792,10 @@ function openDex(n,back=null){
   if(MON(r).ev.length){
     let stages=[[[r,null]]], cur=[r];
     while(true){const nx=[];cur.forEach(k=>MON(k).ev.forEach(e=>nx.push([e[2],e])));if(!nx.length)break;stages.push(nx);cur=nx.map(x=>x[0])}
-    h+=`<h3>Evolution</h3><div class="evo">`+stages.map((st,i)=>(i?'<span class="arrow">›</span>':'')+`<div class="stage">`+
-      st.map(([k,e])=>`<button data-n="${k}" class="${k===n?'cur':''}">${img(k,'spr sm')}${NAME(k)}${e?`<small>${evoText(e)}</small>`:''}</button>`).join('')+`</div>`).join('')+`</div>`;
+    // What it takes to evolve sits on the arrow leading into each stage
+    const evBtn=k=>`<button data-n="${k}" class="${k===n?'cur':''}">${img(k,'spr sm')}${NAME(k)}</button>`;
+    h+=`<h3>Evolution</h3><div class="evo">`+stages.map(st=>`<div class="stage">`+
+      st.map(([k,e])=>e?`<div class="step"><span class="how">${evoText(e)}<b aria-hidden="true">→</b></span>${evBtn(k)}</div>`:evBtn(k)).join('')+`</div>`).join('')+`</div>`;
     if(n===25||r===25&&n===26)h+=`<p class="hint">Your starter Pikachu refuses the Thunder Stone. A Pikachu traded in from another game can evolve.</p>`;
   }
   // Where
