@@ -1,6 +1,6 @@
 // Cache-first service worker so the app runs with no connection.
 // Bump VERSION whenever you edit index.html or dex-data.js so phones pick up the change.
-const VERSION = 'kanto-yellow-v16';
+const VERSION = 'kanto-yellow-v17';
 const SPRITES = 'kanto-sprites'; // Pokémon Yellow sprites, kept across app updates
 const FILES = ['./', './index.html', './dex-data.js', './maps-data.js', './maps-img.js', './manifest.webmanifest', './icon-180.png', './icon-512.png'];
 self.addEventListener('install', e => {

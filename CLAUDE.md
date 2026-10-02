@@ -8,25 +8,22 @@
 
 ## Releasing a new version
 
-- Bump the version label in `index.html` (`<span class="ver">vN.0</span>`).
+- Versions now use three numbers (17.0.0 onwards).
+- Bump the version in the header in `index.html` (`<span class="ver">Yellow · vX.Y.Z</span>`).
 - Bump the service worker cache name in `sw.js` (`const VERSION = 'kanto-yellow-vN';`)
   so installed copies of the app pick up the update.
-- Commit message format: `N.0: short description of what's new`.
+- Commit message format: `X.Y.Z: short description of what's new`.
 
-## Design previews
+## App layout (since 17.0.0)
 
-- `v16a/`, `v16b/` and `v16c/` are alternative designs (16.0.a, 16.0.b, 16.0.c) of the
-  v16.0 app: same features, different theme and layout. Each folder has its own
-  `index.html`, `sw.js` and `manifest.webmanifest`, and loads the shared data files
-  (`dex-data.js`, `maps-data.js`, `maps-img.js`, icons) from the repo root.
-- They share saved progress with the main app (same `localStorage` key), so never
-  change the save format in one place only.
-- The root `index.html` is the main app; leave it alone when working on a preview.
-- 16.0.a's header reads "POKÉDEX" with "Yellow · v16.0.a" under it. The game name is
-  there on purpose: a game switcher (Red, Blue, …) is planned later, and that line
-  will show the selected game. For now everything is Pokémon Yellow only.
-- 16.0.a has a SETTINGS tab with a Theme picker (Pokédex, Original Yellow, Clean modern,
-  Game Boy). Themes only recolour 16.0.a's own layout; the choice is stored per device
-  under the `localStorage` key `kanto-yellow-theme`, separate from saved progress.
-- Each preview's `sw.js` cache name includes a hash of its `index.html`, so installed
-  copies update whenever the page changes.
+- Pokédex-style design: red header with the lens, "POKÉDEX" and "Yellow · vX.Y.Z"
+  under it, and the completion meter; search bar and tabs in a red panel at the
+  bottom (thumb reach). Tabs: Journey, Map, Pokédex, Party, Battle, Progress, Settings.
+- The game name in the header is there on purpose: a game switcher (Red, Blue, …)
+  is planned later, and that line will show the selected game. For now everything
+  is Pokémon Yellow only.
+- Settings has a Theme picker (Pokédex, Original Yellow, Clean modern, Game Boy),
+  then Game save, Sprites for offline, Backup and About the data. Themes only
+  recolour the same layout; the choice is stored per device under the
+  `localStorage` key `kanto-yellow-theme`, separate from saved progress
+  (`kanto-yellow-v1`).
