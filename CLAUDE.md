@@ -25,3 +25,8 @@
 - 16.0.a's header reads "POKÉDEX" with "Yellow · v16.0.a" under it. The game name is
   there on purpose: a game switcher (Red, Blue, …) is planned later, and that line
   will show the selected game. For now everything is Pokémon Yellow only.
+- 16.0.a has a SETTINGS tab with a Theme picker (Pokédex, Original Yellow, Clean modern,
+  Game Boy). Themes only recolour 16.0.a's own layout; the choice is stored per device
+  under the `localStorage` key `kanto-yellow-theme`, separate from saved progress.
+- Each preview's `sw.js` cache name includes a hash of its `index.html`, so installed
+  copies update whenever the page changes.

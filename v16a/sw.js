@@ -1,7 +1,7 @@
 // Offline support for the v16.0.a design preview. It only handles pages inside this folder,
 // and only ever looks in (or clears) its own caches, so the main app is never touched.
 const PREFIX = 'kanto-yellow-v16a-';
-const VERSION = PREFIX + '1';
+const VERSION = PREFIX + '851ff29d9c'; // changes whenever the page changes
 const SPRITES = 'kanto-sprites'; // shared with the main app: sprites are the same everywhere
 const FILES = ['./', './index.html', './manifest.webmanifest', '../dex-data.js', '../maps-data.js', '../maps-img.js', '../icon-180.png', '../icon-512.png'];
 self.addEventListener('install', e => {
