@@ -311,18 +311,13 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
   font-family:"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;
 }
 body{background:var(--bg)}
-/* Device top: red shell, blue lens, three lights */
+/* Device top: red shell and blue lens */
 .dex-top{background:linear-gradient(180deg,var(--red-lt),var(--red) 40%,var(--red-dk));padding:10px 14px 10px;position:relative;box-shadow:0 6px 0 #0006;z-index:5}
 .dex-row{display:flex;align-items:center;gap:12px}
 .lens{width:40px;height:40px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#8FE0FF 14%,#2C9BE0 45%,#0B4F86 100%);border:4px solid #fff;box-shadow:0 0 0 3px #0005,inset 0 -3px 6px #0006}
-.leds{display:flex;gap:5px;align-self:flex-start;margin-top:2px;margin-left:-4px}
-.leds i{width:11px;height:11px;border-radius:50%;border:2px solid #0005;display:block}
-.leds i:nth-child(1){background:#FF4D4D}.leds i:nth-child(2){background:#FFD43B}.leds i:nth-child(3){background:#53D769}
 .dex-top h1{flex:1;min-width:0;margin:0;color:#fff;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:800;letter-spacing:.04em;text-transform:uppercase;line-height:1.3;padding-top:2px;text-shadow:0 1px 0 #0005}
 .dex-top h1 .ver{display:block;font-size:.62rem;letter-spacing:.12em;opacity:.8;font-weight:700}
 .meter{background:#06121B;color:#7CF29A;font-family:ui-monospace,Menlo,monospace;border:2px solid #0008;box-shadow:inset 0 0 8px #0F0A;border-radius:6px;padding:5px 9px;font-size:1rem;letter-spacing:.06em}
-.hbtn{border:2px solid #0004;background:#fff2;color:#fff;border-radius:10px;padding:7px 9px;font-weight:800;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase}
-.hbtn:active{background:#fff4}
 .search{margin:0}
 .search input{background:#06121B;color:#E8EEF3;border:2px solid #0008;border-radius:10px;box-shadow:inset 0 2px 6px #0008}
 .search input::placeholder{color:#7D8A96}
@@ -395,9 +390,7 @@ h2.sec,.sheet h3{color:var(--strong);text-transform:uppercase;letter-spacing:.06
 <div class="dex-top">
   <div class="dex-row">
     <div class="lens" aria-hidden="true"></div>
-    <div class="leds" aria-hidden="true"><i></i><i></i><i></i></div>
     <h1>Pokédex<span class="ver">Yellow · v16.0.a</span></h1>
-    <button class="hbtn" id="hSync" aria-label="Import save file">⟳ Save</button>
     <div class="meter" id="meter" aria-label="Overall completion">0%</div>
   </div>
 </div>
@@ -1601,7 +1594,6 @@ function tab(v){document.querySelectorAll('nav button').forEach(b=>b.setAttribut
   const cur=document.querySelector(`nav button[data-v="${v}"]`);if(cur)cur.scrollIntoView({inline:'nearest',block:'nearest'});
   closeSheet(); if(v==='dex')drawDex(); if(v==='team')drawTeam(); if(v==='vs')drawVs(); if(v==='journal')drawJournal(); if(v==='prog')drawProg()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.v));
-document.getElementById('hSync').onclick=importSave;
 function refresh(){document.getElementById('meter').textContent=Math.round(totals().all*100)+'%';drawMap();
   const on=v=>document.getElementById('v-'+v).classList.contains('on');
   if(on('prog'))drawProg(); if(on('team'))drawTeam(); if(on('vs'))drawVs(); if(on('journal'))drawJournal();

@@ -22,3 +22,6 @@
 - They share saved progress with the main app (same `localStorage` key), so never
   change the save format in one place only.
 - The root `index.html` is the main app; leave it alone when working on a preview.
+- 16.0.a's header reads "POKÉDEX" with "Yellow · v16.0.a" under it. The game name is
+  there on purpose: a game switcher (Red, Blue, …) is planned later, and that line
+  will show the selected game. For now everything is Pokémon Yellow only.
