@@ -312,8 +312,7 @@ h2.sec{font-size:.95rem;margin:14px 0 6px;display:flex;justify-content:space-bet
 }
 body{background:var(--bg)}
 /* Device top: red shell, blue lens, three lights */
-.dex-top{background:linear-gradient(180deg,var(--red-lt),var(--red) 40%,var(--red-dk));padding:10px 14px 0;position:relative;box-shadow:0 6px 0 #0006;z-index:5}
-.dex-top::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:10px;background:linear-gradient(90deg,var(--red-dk) 0 55%,transparent 55%);clip-path:polygon(0 0,58% 0,52% 100%,0 100%)}
+.dex-top{background:linear-gradient(180deg,var(--red-lt),var(--red) 40%,var(--red-dk));padding:10px 14px 10px;position:relative;box-shadow:0 6px 0 #0006;z-index:5}
 .dex-row{display:flex;align-items:center;gap:12px}
 .lens{width:40px;height:40px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#8FE0FF 14%,#2C9BE0 45%,#0B4F86 100%);border:4px solid #fff;box-shadow:0 0 0 3px #0005,inset 0 -3px 6px #0006}
 .leds{display:flex;gap:5px;align-self:flex-start;margin-top:2px;margin-left:-4px}
@@ -324,20 +323,21 @@ body{background:var(--bg)}
 .meter{background:#06121B;color:#7CF29A;font-family:ui-monospace,Menlo,monospace;border:2px solid #0008;box-shadow:inset 0 0 8px #0F0A;border-radius:6px;padding:5px 9px;font-size:1rem;letter-spacing:.06em}
 .hbtn{border:2px solid #0004;background:#fff2;color:#fff;border-radius:10px;padding:7px 9px;font-weight:800;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase}
 .hbtn:active{background:#fff4}
-.search{margin:10px 0 0}
+.search{margin:0}
 .search input{background:#06121B;color:#E8EEF3;border:2px solid #0008;border-radius:10px;box-shadow:inset 0 2px 6px #0008}
 .search input::placeholder{color:#7D8A96}
-.results{background:var(--surface);color:var(--text);border-color:var(--strong)}
-/* Tabs along the top, cut into the shell */
-.toptabs{background:linear-gradient(180deg,transparent,#0002);display:flex;gap:4px;overflow-x:auto;padding:10px 0 0;scrollbar-width:none;margin:0 -14px;padding-left:14px;padding-right:14px}
+.results{background:var(--surface);color:var(--text);border-color:var(--strong);top:auto;bottom:calc(100% + 8px);box-shadow:0 -8px 24px #0008}
+/* Search and tabs live at the bottom, within thumb reach */
+.dex-bottom{background:linear-gradient(0deg,var(--red-dk),var(--red) 60%,var(--red-lt));padding:10px 14px calc(8px + var(--safe-b));position:relative;z-index:5;box-shadow:0 -5px 0 #0006}
+.toptabs{background:none;display:flex;gap:4px;overflow-x:auto;padding:8px 0 0;scrollbar-width:none;margin:0 -14px;padding-left:14px;padding-right:14px}
 .toptabs::-webkit-scrollbar{display:none}
-.toptabs button{flex:none;border:0;background:#0003;color:#FFD9DB;padding:9px 14px 10px;border-radius:10px 10px 0 0;font-weight:800;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase}
+.toptabs button{flex:none;border:0;background:#0003;color:#FFD9DB;padding:9px 14px 10px;border-radius:10px;font-weight:800;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase}
 .toptabs button[aria-selected=true]{background:var(--bg);color:var(--strong)}
 main{margin-top:0}
-.scroll{padding:14px 14px calc(24px + var(--safe-b))}
+.scroll{padding:14px 14px 24px}
 .dexbar{padding:6px 0 10px}
 /* Map: dark radar screen */
-#mapWrap{inset:12px 10px calc(10px + var(--safe-b));border-radius:16px;border:3px solid #2A3540;box-shadow:inset 0 0 0 2px #000}
+#mapWrap{inset:12px 10px 12px;border-radius:16px;border:3px solid #2A3540;box-shadow:inset 0 0 0 2px #000}
 #map{background:radial-gradient(circle at 50% 45%,#12303F,#0B1A22 70%);border-radius:10px}
 .edge{stroke:#2D5B70}
 .chip{background:var(--surface);color:var(--strong);border-color:var(--strong)}
@@ -386,7 +386,7 @@ h2.sec,.sheet h3{color:var(--strong);text-transform:uppercase;letter-spacing:.06
 .sheet .row{background:var(--surface)}
 .sheet .row.got{background:var(--got)}
 .evo button,.tms span,.moves span,.cmpmv span,.sgl>div{color:var(--text)}
-.toast{bottom:calc(16px + var(--safe-b))}
+.toast{bottom:calc(122px + var(--safe-b))}
 </style>
 </head>
 <body>
@@ -400,18 +400,6 @@ h2.sec,.sheet h3{color:var(--strong);text-transform:uppercase;letter-spacing:.06
     <button class="hbtn" id="hSync" aria-label="Import save file">⟳ Save</button>
     <div class="meter" id="meter" aria-label="Overall completion">0%</div>
   </div>
-  <div class="search">
-    <input id="q" type="search" placeholder="Search places, Pokémon, items, TMs, nicknames" autocomplete="off">
-    <div class="results" id="results"></div>
-  </div>
-  <nav class="toptabs" role="tablist">
-    <button role="tab" aria-selected="true" data-v="journal">Journey</button>
-    <button role="tab" aria-selected="false" data-v="map">Map</button>
-    <button role="tab" aria-selected="false" data-v="dex">Pokédex</button>
-    <button role="tab" aria-selected="false" data-v="team">Party</button>
-    <button role="tab" aria-selected="false" data-v="vs">Battle</button>
-    <button role="tab" aria-selected="false" data-v="prog">Trainer</button>
-  </nav>
 </div>
 
 <main>
@@ -429,6 +417,21 @@ h2.sec,.sheet h3{color:var(--strong);text-transform:uppercase;letter-spacing:.06
   <section class="view on" id="v-journal"><div class="scroll" id="jBody"></div></section>
   <section class="view" id="v-prog"><div class="scroll" id="prog"></div></section>
 </main>
+
+<div class="dex-bottom">
+  <div class="search">
+    <input id="q" type="search" placeholder="Search places, Pokémon, items, TMs…" autocomplete="off">
+    <div class="results" id="results"></div>
+  </div>
+  <nav class="toptabs" role="tablist">
+    <button role="tab" aria-selected="true" data-v="journal">Journey</button>
+    <button role="tab" aria-selected="false" data-v="map">Map</button>
+    <button role="tab" aria-selected="false" data-v="dex">Pokédex</button>
+    <button role="tab" aria-selected="false" data-v="team">Party</button>
+    <button role="tab" aria-selected="false" data-v="vs">Battle</button>
+    <button role="tab" aria-selected="false" data-v="prog">Trainer</button>
+  </nav>
+</div>
 
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <header><button class="close" id="sheetBack" hidden>‹ Back</button><h2 id="sheetTitle"></h2><button class="close" id="sheetClose">Close</button></header>
